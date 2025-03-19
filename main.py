@@ -1,11 +1,11 @@
 import datetime
-import config
 from tools.scraper import fetch_articles
 from preprocessing.preprocess import clean_text, remove_stopwords
 from tools.ner import extract_entities
 from tools.sentiment_analysis import analyze_sentiment
 from tools.score_calculator import compute_reputation_score
 from tools.alert import send_alert_email
+from configuration import config
 
 def main():
     # Scarica gli articoli dal feed RSS reale

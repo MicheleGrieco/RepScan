@@ -1,11 +1,11 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import config
+from configuration import config
 
 def send_alert_email(subject, message):
     """
-    Invia un'email di alert utilizzando le impostazioni reali definite in config.py.
+    Invia un'email di alert utilizzando le impostazioni reali definite in configuration.py.
     Le credenziali vengono prelevate dalle variabili d'ambiente.
     """
     sender_email = config.EMAIL_SENDER

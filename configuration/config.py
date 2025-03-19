@@ -15,4 +15,4 @@ EMAIL_RECEIVER = "m.grieco31@studenti.uniba.it"  # Email reale di ricezione
 SENTIMENT_THRESHOLD = -0.3
 
 # Azienda target (reale) da monitorare nei testi
-TARGET_COMPANY = "enel"
+TARGET_COMPANY = "tesla"
