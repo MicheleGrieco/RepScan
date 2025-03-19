@@ -1,0 +1,6 @@
+feedparser
+nltk
+spacy
+transformers
+streamlit
+pandas
