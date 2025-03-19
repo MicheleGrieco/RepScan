@@ -1,6 +1,6 @@
 import os
 
-# URL del feed RSS di Google News in italiano (reale)
+# URL del feed RSS di Google News in italiano
 RSS_FEED_URL = "https://news.google.com/rss?hl=it&gl=IT&ceid=IT:it"
 
 # Impostazioni per l'invio degli alert via email.

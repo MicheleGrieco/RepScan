@@ -10,9 +10,9 @@ def clean_text(text):
     Rimuove tag HTML, URL e caratteri non alfabetici,
     converte il testo in minuscolo e normalizza gli spazi.
     """
-    text = re.sub(r'<[^>]+>', '', text)       # Rimuove tag HTML
-    text = re.sub(r'http\S+', '', text)         # Rimuove URL
-    text = re.sub(r'[^a-zA-ZàèéìòùÀÈÉÌÒÙ\s]', '', text)  # Mantiene solo lettere e spazi
+    text = re.sub(r'<[^>]+>', '', text)       # Regex per rimuovere tag HTML
+    text = re.sub(r'http\S+', '', text)         # Regex per rimuovere URL
+    text = re.sub(r'[^a-zA-ZàèéìòùÀÈÉÌÒÙ\s]', '', text)  # Regex che mantiene solo lettere e spazi
     text = text.lower()                        # Converte in minuscolo
     text = re.sub(r'\s+', ' ', text).strip()    # Normalizza gli spazi
     return text
