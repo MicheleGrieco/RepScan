@@ -2,19 +2,19 @@ import re
 import nltk
 from nltk.corpus import stopwords
 
-# Scarica le stopword (se non già scaricate)
-nltk.download('stopwords')
+# Scarica le stopword italiane (se non sono già state scaricate)
+nltk.download('stopwords', quiet=True)
 
 def clean_text(text):
     """
     Rimuove tag HTML, URL e caratteri non alfabetici,
-    converte in minuscolo e normalizza gli spazi.
+    converte il testo in minuscolo e normalizza gli spazi.
     """
     text = re.sub(r'<[^>]+>', '', text)       # Rimuove tag HTML
     text = re.sub(r'http\S+', '', text)         # Rimuove URL
     text = re.sub(r'[^a-zA-ZàèéìòùÀÈÉÌÒÙ\s]', '', text)  # Mantiene solo lettere e spazi
-    text = text.lower()                        # Converti in minuscolo
-    text = re.sub(r'\s+', ' ', text).strip()    # Rimuove spazi extra
+    text = text.lower()                        # Converte in minuscolo
+    text = re.sub(r'\s+', ' ', text).strip()    # Normalizza gli spazi
     return text
 
 def remove_stopwords(text, language='italian'):

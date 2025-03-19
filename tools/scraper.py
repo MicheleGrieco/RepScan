@@ -18,7 +18,7 @@ def fetch_articles(rss_url):
     return articles
 
 if __name__ == "__main__":
-    # Test: stampa i titoli degli articoli
     articles = fetch_articles("https://news.google.com/rss?hl=it&gl=IT&ceid=IT:it")
-    for a in articles:
-        print(a["title"])
+    print("Numero di articoli scaricati:", len(articles))
+    for a in articles[:3]:
+        print("-", a["title"])

@@ -1,6 +1,6 @@
 import spacy
 
-# Carica il modello italiano (se non lo hai già, installalo con: python -m spacy download it_core_news_sm)
+# Carica il modello italiano (assicurarsi di averlo installato con: python -m spacy download it_core_news_sm)
 nlp = spacy.load("it_core_news_sm")
 
 def extract_entities(text):
@@ -12,6 +12,8 @@ def extract_entities(text):
     return entities
 
 if __name__ == "__main__":
-    text = "Apple Inc. ha sede a Cupertino, California. L'azienda è stata fondata da Steve Jobs."
+    text = "Enel è una delle maggiori aziende energetiche italiane, con sede a Roma e operante in molti paesi."
     ents = extract_entities(text)
-    print(ents)
+    print("Entità estratte:")
+    for ent, label in ents:
+        print(f"{ent} -> {label}")
