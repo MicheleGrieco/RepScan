@@ -4,3 +4,4 @@ spacy
 transformers
 streamlit
 pandas
+torch
