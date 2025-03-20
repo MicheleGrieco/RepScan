@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import altair as alt
 from datetime import datetime, timedelta
 import numpy as np
-from config import DASHBOARD_TITLE, TARGET_COMPANY
-from score_calculator import get_historical_scores
-from sentiment_analysis import get_sentiment_label
+from configuration.config import DASHBOARD_TITLE, TARGET_COMPANY
+from tools.score_calculator import get_historical_scores
+from tools.sentiment_analysis import get_sentiment_label
 
 def run_dashboard():
     """
