@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import logging
 from datetime import datetime
-from config import RSS_FEED_URL
+from configuration.config import RSS_FEED_URL
 
 # Configurazione del logger
 logging.basicConfig(

@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
 from datetime import datetime
-from config import (
+from configuration.config import (
     EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_RECIPIENT,
     SMTP_SERVER, SMTP_PORT, ALERT_THRESHOLD, TARGET_COMPANY
 )

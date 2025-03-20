@@ -3,7 +3,7 @@ import unicodedata
 import spacy
 import logging
 from bs4 import BeautifulSoup
-from config import SPACY_MODEL
+from configuration.config import SPACY_MODEL
 
 # Configurazione del logger
 logging.basicConfig(

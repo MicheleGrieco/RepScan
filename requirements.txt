@@ -1,7 +1,9 @@
+bs4
 feedparser
 nltk
-spacy
-transformers
-streamlit
 pandas
+requests
+spacy
+streamlit
 torch
+transformers

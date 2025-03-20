@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import logging
 from datetime import datetime
-from config import DATA_DIRECTORY, RESULTS_FILE
+from configuration.config import DATA_DIRECTORY, RESULTS_FILE
 
 # Configurazione del logger
 logging.basicConfig(

@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import logging
 import numpy as np
-from config import SENTIMENT_MODEL
+from configuration.config import SENTIMENT_MODEL
 
 # Configurazione del logger
 logging.basicConfig(

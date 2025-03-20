@@ -1,7 +1,7 @@
 # Named Entity Recognition (NER) con SpaCy
 import spacy
 import logging
-from config import SPACY_MODEL, TARGET_COMPANY
+from configuration.config import SPACY_MODEL, TARGET_COMPANY
 
 # Configurazione del logger
 logging.basicConfig(
