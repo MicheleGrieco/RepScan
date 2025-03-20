@@ -1,139 +1,180 @@
-# RepScan: Reputational Scanning Tool with Sentiment Analysis
+# RepScan - Monitoraggio Reputazione Aziendale
 
-RepScan è un tool per monitorare la reputazione aziendale attraverso la raccolta di dati da fonti online e l’analisi del sentiment. L’applicazione, sviluppata in Python, esegue le seguenti operazioni:
+RepScan è un sistema avanzato per il monitoraggio della reputazione aziendale che raccoglie, analizza e valuta articoli online per determinare il sentiment pubblico verso un'azienda target. Il sistema utilizza tecniche di Natural Language Processing (NLP) e Machine Learning per fornire insight preziosi sulla percezione dell'azienda nei media.
 
-- **RSS Feed Scraper:** Scarica articoli da un feed RSS (ad esempio, Google News in italiano).
-- **Preprocessing del Testo:** Pulisce e normalizza il testo rimuovendo tag HTML, URL, caratteri non alfabetici e stopword.
-- **Named Entity Recognition (NER):** Utilizza spaCy per estrarre entità e verificare se l’azienda target (ad esempio “Enel”) viene menzionata.
-- **Sentiment Analysis:** Impiega il pipeline di Hugging Face (transformers) per valutare la polarità del testo, mappando il rating su una scala da -1 (molto negativo) a +1 (molto positivo).
-- **Calcolo del Punteggio Reputazionale:** Combina i risultati dei sentiment con eventuali pesi (ad es. "reach") per calcolare un indice medio.
-- **Sistema di Alert:** Invia un’email di notifica se il punteggio reputazionale scende al di sotto di una soglia definita.
-- **Dashboard Interattiva:** Fornisce una dashboard con Streamlit per visualizzare il trend del punteggio reputazionale nel tempo.
+## Funzionalità Principali
 
-## Struttura del Progetto
+- **Raccolta Automatica di Articoli**: Scarica articoli da feed RSS (es. Google News) relativi all'azienda target
+- **Analisi del Testo**: Preprocessing, Named Entity Recognition, e Sentiment Analysis
+- **Calcolo del Punteggio Reputazionale**: Determina un indice quantitativo della reputazione aziendale
+- **Sistema di Alert**: Notifiche automatiche quando il punteggio scende sotto una soglia definita
+- **Dashboard Interattiva**: Visualizzazione dei trend reputazionali nel tempo
 
-- **config.py** – Contiene le configurazioni generali (URL del feed, impostazioni email, soglia di alert, nome dell’azienda target, ecc.).
-   - Importante: `RSS_FEED_URL` deve essere definito per evitare errori di attributo mancato.
-   - Le credenziali email sono lette da variabili d’ambiente.
-- **scraper.py** – Modulo per il download degli articoli dal feed RSS.
-- **preprocess.py** – Funzioni per la pulizia e normalizzazione del testo.
-- **ner.py** – Modulo per il riconoscimento delle entità (NER) con spaCy.
-- **sentiment_analysis.py** – Modulo per eseguire la sentiment analysis utilizzando Hugging Face.
-- **score_calculator.py** – Funzione per il calcolo del punteggio reputazionale medio ponderato.
-- **alert.py** – Modulo per l’invio degli alert via email (legge credenziali da variabili d’ambiente).
-- **dashboard.py** – Applicazione Streamlit per la visualizzazione dei trend.
-- **main.py** – Script principale che coordina l’intero flusso (scraping, analisi, calcolo score e alert).
-- **README.md** – Questo file.
-- **requirements.txt** – Elenco delle librerie necessarie.
+## Architettura del Sistema
 
-## Requisiti
+Il sistema è strutturato in moduli indipendenti che lavorano insieme per fornire un'analisi completa:
 
-- **Python 3.7+**
-- **pip** (per l’installazione dei package)
+1. **Scraper**: Raccoglie articoli da feed RSS configurati
+2. **Preprocessor**: Pulisce e normalizza il testo degli articoli
+3. **NER Engine**: Identifica menzioni dell'azienda target
+4. **Sentiment Analyzer**: Valuta il sentiment del testo utilizzando modelli di Deep Learning
+5. **Score Calculator**: Calcola il punteggio reputazionale combinando i risultati dell'analisi
+6. **Alert System**: Invia notifiche quando necessario
+7. **Dashboard**: Visualizza i dati in modo interattivo
+
+## Requisiti di Sistema
+
+- Python 3.8+
+- Connessione internet per il download degli articoli e dei modelli
+- Memoria RAM: almeno 4GB (8GB consigliati per migliori prestazioni)
+- Spazio su disco: almeno 2GB per i modelli di NLP
 
 ## Installazione
 
-1. **Clona il repository:**
+1. Clone del repository:
+```bash
+git clone https://github.com/yourusername/repscan.git
+cd repscan
+```
 
-   ```bash
-   git clone <repository_url>
-   cd <repository_directory>
-   ```
+2. Installazione delle dipendenze:
+```bash
+pip install -r requirements.txt
+```
 
-2. **(Opzionale) Crea e attiva un ambiente virtuale:**
+3. Download del modello italiano di spaCy:
+```bash
+python -m spacy download it_core_news_sm
+```
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate    # Su Windows: venv\Scripts\activate
-   ```
-
-3. **Installa i pacchetti richiesti:**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Scarica il modello spaCy per l’italiano:**
-
-   ```bash
-   python -m spacy download it_core_news_sm
-   ```
+4. Configurazione delle variabili d'ambiente (per il sistema di alert):
+```bash
+export EMAIL_SENDER=your_email@example.com
+export EMAIL_PASSWORD=your_email_password
+export EMAIL_RECIPIENT=recipient@example.com
+```
 
 ## Configurazione
 
-### File `config.py`
-Nel file `config.py` sono presenti le seguenti variabili:
+Il file `config.py` contiene tutte le impostazioni principali del sistema. Modifica questo file per personalizzare:
 
-```python
-RSS_FEED_URL = "https://news.google.com/rss?hl=it&gl=IT&ceid=IT:it"
-EMAIL_SMTP_SERVER = "smtp.gmail.com"
-EMAIL_SMTP_PORT = 587
-EMAIL_SENDER = os.environ.get("REPSCAN_EMAIL_SENDER", "tuo_indirizzo_email")
-EMAIL_PASSWORD = os.environ.get("REPSCAN_EMAIL_PASSWORD")
-EMAIL_RECEIVER = "indirizzo_destinatario"
-SENTIMENT_THRESHOLD = -0.3
-TARGET_COMPANY = "enel"
-```
-
-Assicurati che:
-- **`RSS_FEED_URL`** sia definito con una URL valida.
-- **`TARGET_COMPANY`** corrisponda all’azienda di cui vuoi monitorare le menzioni (es. “enel”).
-
-### Variabili d’ambiente
-Per proteggere le credenziali, il progetto legge `EMAIL_SENDER` e `EMAIL_PASSWORD` dalle variabili d’ambiente `REPSCAN_EMAIL_SENDER` e `REPSCAN_EMAIL_PASSWORD`.  
-Esempio su Linux/macOS:
-
-```bash
-export REPSCAN_EMAIL_SENDER="m.grieco31@studenti.uniba.it"
-export REPSCAN_EMAIL_PASSWORD="la_tua_password"
-```
-
-Su Windows (cmd):
-
-```bash
-set REPSCAN_EMAIL_SENDER=m.grieco31@studenti.uniba.it
-set REPSCAN_EMAIL_PASSWORD=la_tua_password
-```
-
-Se queste variabili non sono impostate, `EMAIL_SENDER` e `EMAIL_PASSWORD` potrebbero risultare `None` e l’invio di email non funzionerà.
+- URL del feed RSS
+- Nome dell'azienda target
+- Soglia per gli alert
+- Impostazioni email
+- Modello di sentiment analysis
+- Directory per il salvataggio dei dati
 
 ## Utilizzo
 
-1. **Esecuzione del Tool Principale:**
+### Esecuzione dell'analisi
 
-   Avvia lo script principale che esegue lo scraping, l’analisi del testo e il calcolo del punteggio reputazionale:
+```bash
+python main.py
+```
 
-   ```bash
-   python main.py
-   ```
-   - Verranno scaricati articoli dal feed specificato in `RSS_FEED_URL`.
-   - Verranno filtrati solo quelli che menzionano la `TARGET_COMPANY`.
-   - Se il punteggio reputazionale è inferiore a `SENTIMENT_THRESHOLD`, verrà inviato un alert email.
+Questo comando esegue l'intero processo di analisi:
+1. Raccolta degli articoli
+2. Preprocessing del testo
+3. Riconoscimento delle entità
+4. Analisi del sentiment
+5. Calcolo del punteggio reputazionale
+6. Invio di alert (se necessario)
 
-2. **Avvio della Dashboard:**
+### Avvio della dashboard
 
-   Per visualizzare i trend del punteggio reputazionale tramite Streamlit:
+```bash
+python main.py --dashboard
+```
 
-   ```bash
-   streamlit run dashboard.py
-   ```
-   - Nel file `dashboard.py` puoi simulare o importare dati reali per mostrare i trend su un grafico.
+Questo comando avvia la dashboard Streamlit che visualizza i trend del punteggio reputazionale nel tempo.
 
-## Debug
+Alternativamente, puoi avviare direttamente la dashboard con:
 
-- Se ottieni `AttributeError: module 'config' has no attribute 'RSS_FEED_URL'`, verifica che `RSS_FEED_URL` sia effettivamente definito in `config.py` e che non esistano cartelle o file che possano confliggere con l’import.
-- Se la variabile `EMAIL_PASSWORD` risulta `None`, controlla di aver impostato correttamente la variabile d’ambiente `REPSCAN_EMAIL_PASSWORD`.
+```bash
+streamlit run dashboard.py
+```
+
+## Automazione
+
+Per un monitoraggio continuo, è consigliabile configurare un job cron per eseguire l'analisi periodicamente:
+
+```bash
+# Esempio di job cron per eseguire l'analisi ogni 6 ore
+0 */6 * * * cd /path/to/repscan && python main.py
+```
+
+## Struttura del Progetto
+
+```
+repscan/
+├── config.py           # Configurazioni generali
+├── scraper.py          # Modulo per il download degli articoli
+├── preprocess.py       # Funzioni per la pulizia del testo
+├── ner.py              # Modulo per il riconoscimento delle entità
+├── sentiment_analysis.py # Modulo per l'analisi del sentiment
+├── score_calculator.py # Funzione per il calcolo del punteggio
+├── alert.py            # Modulo per l'invio degli alert
+├── dashboard.py        # Dashboard Streamlit
+├── main.py             # Script principale
+├── data/               # Directory per i dati
+│   └── reputation_scores.csv  # File con i punteggi storici
+└── requirements.txt    # Dipendenze del progetto
+```
+
+## Customizzazione
+
+### Aggiunta di Nuove Fonti
+
+Per aggiungere nuove fonti di articoli, modifica il file `config.py` e aggiorna l'URL del feed RSS.
+
+### Personalizzazione del Modello di Sentiment
+
+Per utilizzare un modello di sentiment diverso, modifica il parametro `SENTIMENT_MODEL` nel file `config.py`.
+
+### Regolazione della Soglia di Alert
+
+Per modificare la sensibilità del sistema di alert, regola il parametro `ALERT_THRESHOLD` nel file `config.py`.
+
+## Troubleshooting
+
+### Problemi con il download degli articoli
+
+Se riscontri problemi con il download degli articoli, verifica:
+- La connessione internet
+- La validità dell'URL del feed RSS
+- Eventuali limitazioni di rate dal provider del feed
+
+### Errori con il modello di spaCy
+
+Se incontri errori relativi al modello di spaCy, assicurati di aver scaricato correttamente il modello italiano:
+```bash
+python -m spacy download it_core_news_sm
+```
+
+### Problemi con l'invio degli alert
+
+Se gli alert non vengono inviati:
+- Verifica che le variabili d'ambiente siano impostate correttamente
+- Assicurati che il server SMTP sia configurato correttamente
+- Controlla che l'applicazione abbia le autorizzazioni necessarie per inviare email
 
 ## Contributori
 
-- **Michele Grieco** – m.grieco31@studenti.uniba.it
+- **Michele Grieco**
 
-## License
+Sono aperto a contributi! Se desideri contribuire al progetto:
 
-Questo progetto è distribuito con [MIT License](LICENSE).
+1. Fai un fork del repository
+2. Crea un branch per la tua feature (`git checkout -b feature/amazing-feature`)
+3. Commit dei tuoi cambiamenti (`git commit -m 'Add some amazing feature'`)
+4. Push al branch (`git push origin feature/amazing-feature`)
+5. Apri una Pull Request
 
-## Acknowledgements
+## Licenza
 
-- **Hugging Face transformers** per i modelli di sentiment analysis.
-- **spaCy** per il riconoscimento delle entità.
-- **Streamlit** per la creazione della dashboard interattiva.
+Questo progetto è distribuito con licenza MIT. Vedi il file `LICENSE` per maggiori dettagli.
+
+## Contatti
+
+Per domande o supporto, contattami a [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.itm) / [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com).

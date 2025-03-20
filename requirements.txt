@@ -1,9 +1,22 @@
-bs4
-feedparser
-nltk
+# Librerie principali
 pandas
+numpy
+
+# Scraping e parsing
+feedparser
+beautifulsoup4
 requests
+
+# NLP e Machine Learning
 spacy
-streamlit
-torch
 transformers
+torch
+scikit-learn
+
+# Visualizzazione
+streamlit
+matplotlib
+altair
+
+# Utilità
+python-dotenv
