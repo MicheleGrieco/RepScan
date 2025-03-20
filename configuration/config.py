@@ -1,18 +1,27 @@
 import os
 
-# URL del feed RSS di Google News in italiano
-RSS_FEED_URL = "https://news.google.com/rss?hl=it&gl=IT&ceid=IT:it"
+# Configurazioni generali
+RSS_FEED_URL = "https://news.google.com/rss/search?q=Enel&hl=it&gl=IT&ceid=IT:it"
+TARGET_COMPANY = "Enel"
+ALERT_THRESHOLD = -0.3  # Soglia per inviare alert (sentiment negativo)
 
-# Impostazioni per l'invio degli alert via email.
-# Le credenziali vengono lette da variabili d'ambiente per evitare di inserirle in chiaro.
-EMAIL_SMTP_SERVER = "smtp.gmail.com"
-EMAIL_SMTP_PORT = 587
-EMAIL_SENDER = os.environ.get("REPSCAN_EMAIL_SENDER", "m.grieco31@studenti.uniba.it")
-EMAIL_PASSWORD = os.environ.get("REPSCAN_EMAIL_PASSWORD")  # Assicurarsi di impostare questa variabile
-EMAIL_RECEIVER = "m.grieco31@studenti.uniba.it"  # Email reale di ricezione
+# Configurazioni email
+EMAIL_SENDER = os.environ.get("EMAIL_SENDER")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL_RECIPIENT = os.environ.get("EMAIL_RECIPIENT", "admin@example.com")
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
 
-# Soglia per l'invio degli alert: se il punteggio reputazionale (media dei sentiment) scende sotto questo valore, viene inviato un alert
-SENTIMENT_THRESHOLD = -0.3
+# Configurazioni per la sentiment analysis
+SENTIMENT_MODEL = "dbmdz/bert-base-italian-uncased-sentiment"
 
-# Azienda target (reale) da monitorare nei testi
-TARGET_COMPANY = "tesla"
+# Configurazioni per il salvataggio dei dati
+DATA_DIRECTORY = "data"
+RESULTS_FILE = os.path.join(DATA_DIRECTORY, "reputation_scores.csv")
+
+# Configurazioni per SpaCy
+SPACY_MODEL = "it_core_news_sm"
+
+# Configurazioni per la dashboard
+DASHBOARD_TITLE = f"RepScan - Dashboard di Monitoraggio Reputazionale per {TARGET_COMPANY}"
+DASHBOARD_REFRESH_RATE = 3600  # in secondi (1 ora)
