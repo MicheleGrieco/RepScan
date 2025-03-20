@@ -1,30 +1,59 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import altair as alt
+from datetime import datetime, timedelta
+import numpy as np
+from config import DASHBOARD_TITLE, TARGET_COMPANY
+from score_calculator import get_historical_scores
+from sentiment_analysis import get_sentiment_label
 
-def run_dashboard(reputation_scores_history):
-    st.title("RepScan Dashboard: Trend della Reputazione Aziendale")
-    st.write("Visualizza il trend del punteggio reputazionale nel tempo.")
+def run_dashboard():
+    """
+    Avvia la dashboard Streamlit per visualizzare l'andamento del punteggio reputazionale
+    """
+    st.set_page_config(
+        page_title=DASHBOARD_TITLE,
+        page_icon="📊",
+        layout="wide"
+    )
 
-    # reputation_scores_history: lista di dizionari con chiavi "timestamp" e "score"
-    df = pd.DataFrame(reputation_scores_history)
+    st.title(DASHBOARD_TITLE)
+    st.markdown(f"Monitoraggio della reputazione online per **{TARGET_COMPANY}**")
+
+    # Carica i dati storici
+    df = get_historical_scores()
+
     if df.empty:
-        st.write("Nessun dato disponibile.")
+        st.warning("Nessun dato disponibile. Esegui prima l'analisi per raccogliere i dati.")
         return
 
-    # Converte la colonna 'timestamp' in formato datetime e ordina i dati
+    # Converti la colonna timestamp in datetime
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.sort_values('timestamp')
 
-    st.line_chart(df.set_index('timestamp')['score'])
-    st.write("Dati grezzi:")
-    st.dataframe(df)
+    # Aggiungi una colonna per il sentiment label
+    df['sentiment_label'] = df['score'].apply(get_sentiment_label)
 
-if __name__ == "__main__":
-    # Dati di esempio reali (puoi sostituirli con dati storici effettivi)
-    reputation_scores_history = [
-        {"timestamp": "2023-03-01 12:00:00", "score": 0.45},
-        {"timestamp": "2023-03-02 12:00:00", "score": 0.50},
-        {"timestamp": "2023-03-03 12:00:00", "score": 0.40},
-        {"timestamp": "2023-03-04 12:00:00", "score": 0.35},
-    ]
-    run_dashboard(reputation_scores_history)
+    # Filtra i dati per intervallo di tempo
+    col1, col2 = st.columns(2)
+    with col1:
+        period = st.selectbox(
+            "Seleziona periodo",
+            ["Ultimi 7 giorni", "Ultimi 30 giorni", "Ultimi 90 giorni", "Tutto"]
+        )
+
+    with col2:
+        refresh = st.button("Aggiorna dati")
+
+    # Applica il filtro
+    if period == "Ultimi 7 giorni":
+        cutoff = datetime.now() - timedelta(days=7)
+        filtered_df = df[df['timestamp'] >= cutoff]
+    elif period == "Ultimi 30 giorni":
+        cutoff = datetime.now() - timedelta(days=30)
+        filtered_df = df[df['timestamp'] >= cutoff]
+    elif period == "Ultimi 90 giorni":
+        cutoff = datetime.now() - timedelta(days=90)
+        filtered_df = df[df['timestamp'] >= cutoff]
+    else:
+        filtered_df = df
