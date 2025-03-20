@@ -1,11 +1,9 @@
-# main.py
 import logging
 import os
 import argparse
 import pandas as pd
 from datetime import datetime
 
-# Importa i moduli del progetto
 from configuration.config import DATA_DIRECTORY, TARGET_COMPANY
 from tools.scraper import collect_articles
 from preprocessing.preprocess import preprocess_text

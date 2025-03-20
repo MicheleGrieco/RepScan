@@ -1,94 +1,85 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import logging
-import numpy as np
+from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 from configuration.config import SENTIMENT_MODEL
 
-# Configurazione del logger
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Carica il modello e il tokenizer
+# Usa un modello italiano disponibile
+SENTIMENT_MODEL = "neuraly/bert-base-italian-cased-sentiment"
+
 try:
-    tokenizer = AutoTokenizer.from_pretrained(SENTIMENT_MODEL)
-    model = AutoModelForSequenceClassification.from_pretrained(SENTIMENT_MODEL)
+    # Carica il modello e il tokenizer
+    sentiment_analyzer = pipeline(
+        "sentiment-analysis",
+        model=SENTIMENT_MODEL,
+        tokenizer=SENTIMENT_MODEL
+    )
     logger.info(f"Modello di sentiment analysis {SENTIMENT_MODEL} caricato con successo")
 except Exception as e:
-    logger.error(f"Errore durante il caricamento del modello di sentiment: {e}")
-    raise
+    logger.error(f"Errore durante il caricamento del modello di sentiment: {str(e)}")
+    # Fallback a un modello più semplice se necessario
+    sentiment_analyzer = None
 
 def analyze_sentiment(text):
     """
-    Analizza il sentiment del testo utilizzando un modello BERT
-    
+    Analizza il sentiment del testo utilizzando un modello preaddestrato
+
     Args:
         text (str): Testo da analizzare
-        
+
     Returns:
-        float: Punteggio di sentiment da -1 (molto negativo) a +1 (molto positivo)
+        float: Punteggio di sentiment tra -1 (negativo) e 1 (positivo)
     """
-    if not text:
-        return 0.0
-
-    logger.info("Iniziata l'analisi del sentiment")
-
     try:
-        # Tronca il testo se è troppo lungo per il modello
-        max_length = tokenizer.model_max_length
-        if len(text) > max_length:
-            logger.warning(f"Testo troppo lungo ({len(text)} caratteri), verrà troncato a {max_length}")
-            text = text[:max_length]
+        if sentiment_analyzer:
+            # Limita il testo alla lunghezza massima accettata dal modello
+            max_length = 512
+            if len(text) > max_length:
+                text = text[:max_length]
 
-        # Tokenizza il testo
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+            result = sentiment_analyzer(text)
 
-        # Inference
-        with torch.no_grad():
-            outputs = model(**inputs)
-
-        # Ottieni i punteggi
-        scores = outputs.logits.softmax(dim=1).detach().numpy()[0]
-
-        # Mappa i punteggi sulla scala da -1 a +1
-        # Assumi che il modello restituisca punteggi per [negativo, neutro, positivo]
-        if len(scores) == 3:
-            # Mappa [negativo, neutro, positivo] a [-1, 0, 1]
-            sentiment_score = -1 * scores[0] + 0 * scores[1] + 1 * scores[2]
-        elif len(scores) == 2:
-            # Mappa [negativo, positivo] a [-1, 1]
-            sentiment_score = -1 * scores[0] + 1 * scores[1]
+            # Converti il risultato in un punteggio tra -1 e 1
+            # Assumendo che il modello restituisca etichette come POSITIVE/NEGATIVE/NEUTRAL
+            if result[0]['label'] == 'POSITIVE':
+                return result[0]['score']
+            elif result[0]['label'] == 'NEGATIVE':
+                return -result[0]['score']
+            else:
+                return 0.0
         else:
-            # Mappa punteggi più complessi
-            # Normalizza in [-1, 1] con media ponderata
-            weights = np.linspace(-1, 1, len(scores))
-            sentiment_score = np.sum(weights * scores)
+            # Implementazione di fallback semplice basata su parole chiave
+            logger.warning("Usando analisi del sentiment di fallback basata su parole chiave")
+            positive_words = ['ottimo', 'eccellente', 'positivo', 'buono', 'successo']
+            negative_words = ['pessimo', 'negativo', 'cattivo', 'fallimento', 'problema']
 
-        logger.info(f"Sentiment analizzato: {sentiment_score:.2f}")
-        return float(sentiment_score)
+            text = text.lower()
+            positive_count = sum(1 for word in positive_words if word in text)
+            negative_count = sum(1 for word in negative_words if word in text)
+
+            total = positive_count + negative_count
+            if total == 0:
+                return 0.0
+
+            return (positive_count - negative_count) / total
+
     except Exception as e:
-        logger.error(f"Errore durante l'analisi del sentiment: {e}")
+        logger.error(f"Errore nell'analisi del sentiment: {str(e)}")
         return 0.0
 
 def get_sentiment_label(score):
     """
-    Converte un punteggio numerico in un'etichetta di sentiment
-    
+    Converte un punteggio di sentiment in un'etichetta leggibile
+
     Args:
-        score (float): Punteggio di sentiment da -1 a +1
-        
+        score (float): Punteggio di sentiment tra -1 e 1
+
     Returns:
-        str: Etichetta di sentiment (Molto Negativo, Negativo, Neutro, Positivo, Molto Positivo)
+        str: Etichetta di sentiment (Positivo, Neutro, Negativo)
     """
-    if score < -0.6:
-        return "Molto Negativo"
+    if score > 0.2:
+        return "Positivo"
     elif score < -0.2:
         return "Negativo"
-    elif score < 0.2:
-        return "Neutro"
-    elif score < 0.6:
-        return "Positivo"
     else:
-        return "Molto Positivo"
+        return "Neutro"

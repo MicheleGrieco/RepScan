@@ -12,3 +12,9 @@ ENV/
 *.pyo
 *.pyd
 __pycache__/
+
+# Data
+*.csv
+*.json
+*.sqlite3
+*.log
