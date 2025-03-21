@@ -1,6 +1,11 @@
 # IDEs
-.idea
+.idea/
+.idea/**/*
 .vscode
+
+# Compiled files
+.xml
+.iml
 
 # Virtual Environment
 venv/
