@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def run_analysis():
+def run_analysis() -> float:
     """
     Esegue l'intero flusso di analisi: raccolta articoli, preprocessing,
     riconoscimento delle entità, analisi del sentiment, calcolo del punteggio
