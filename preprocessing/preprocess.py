@@ -1,59 +1,60 @@
 import re
 import unicodedata
 import spacy
+from spacy.cli.download import download
 import logging
 from bs4 import BeautifulSoup
 from configuration.config import SPACY_MODEL
 
-# Configurazione del logger
+# Logger configuration
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Carica il modello SpaCy per le stopwords
+# Loads the SpaCy model for Italian language processing
 try:
     nlp = spacy.load(SPACY_MODEL)
-    logger.info(f"Modello SpaCy {SPACY_MODEL} caricato con successo")
+    logger.info(f"SpaCy model {SPACY_MODEL} successfully loaded")
 except Exception as e:
-    logger.error(f"Errore durante il caricamento del modello SpaCy: {e}")
-    logger.info("Tentativo di download del modello SpaCy")
+    logger.error(f"Error during SpaCy model loading: {e}")
+    logger.info("SpaCy model not found, attempting to download...")
     try:
-        spacy.cli.download(SPACY_MODEL)
+        download(SPACY_MODEL)
         nlp = spacy.load(SPACY_MODEL)
-        logger.info(f"Modello SpaCy {SPACY_MODEL} scaricato e caricato con successo")
+        logger.info(f"SpaCy model {SPACY_MODEL} downloaded and loaded successfully")
     except Exception as e:
-        logger.error(f"Impossibile scaricare il modello SpaCy: {e}")
+        logger.error(f"Unable to download SpaCy model {e}")
         # Fallback a un modello più piccolo
         try:
             nlp = spacy.blank("it")
-            logger.info("Caricato modello SpaCy vuoto come fallback")
+            logger.info("Loaded blank SpaCy model as fallback")
         except:
-            logger.critical("Impossibile caricare alcun modello SpaCy")
+            logger.critical("Importing SpaCy model failed, please check your installation and model name.")
             raise
 
 def remove_html_tags(text):
     """
-    Rimuove i tag HTML dal testo
+    Remove HTML tags from the text
     
     Args:
-        text (str): Testo con possibili tag HTML
+        text (str): Text with possible HTML tags
         
     Returns:
-        str: Testo pulito dai tag HTML
+        str: Text without HTML tags
     """
     return BeautifulSoup(text, "html.parser").get_text()
 
 def remove_urls(text):
     """
-    Rimuove gli URL dal testo
+    Remove URLs from the text
     
     Args:
-        text (str): Testo con possibili URL
+        text (str): Text with possible URLs
         
     Returns:
-        str: Testo pulito dagli URL
+        str: Text without URLs
     """
     # Pattern per riconoscere gli URL
     url_pattern = re.compile(r'https?://\S+|www\.\S+')
@@ -61,13 +62,13 @@ def remove_urls(text):
 
 def remove_special_chars(text):
     """
-    Rimuove caratteri speciali e normalizza il testo
+    Removes special characters from the text, normalizes it, and removes extra spaces.
     
     Args:
-        text (str): Testo da pulire
+        text (str): Text to be normalized
         
     Returns:
-        str: Testo normalizzato
+        str: Normalized text with special characters removed
     """
     # Normalizza in forma Unicode NFKD
     text = unicodedata.normalize('NFKD', text)
@@ -82,13 +83,13 @@ def remove_special_chars(text):
 
 def remove_stopwords(text):
     """
-    Rimuove le stopwords dal testo
+    Remove stopwords from the text using SpaCy.
     
     Args:
-        text (str): Testo da cui rimuovere le stopwords
+        text (str): Text from which to remove stopwords
         
     Returns:
-        str: Testo senza stopwords
+        str: Text without stopwords
     """
     doc = nlp(text)
     filtered_tokens = [token.text for token in doc if not token.is_stop]
@@ -96,19 +97,19 @@ def remove_stopwords(text):
 
 def preprocess_text(text, remove_stops=False):
     """
-    Esegue tutti i passaggi di preprocessing sul testo
+    Executes the preprocessing steps on the input text.
     
     Args:
-        text (str): Testo da preprocessare
-        remove_stops (bool): Se True, rimuove le stopwords
+        text (str): Text to preprocess
+        remove_stops (bool): True to remove stopwords, False otherwise
         
     Returns:
-        str: Testo preprocessato
+        str: Preprocessed text
     """
     if not text:
         return ""
 
-    logger.info("Iniziato il preprocessing del testo")
+    logger.info("Text preprocessing started")
 
     # Applica tutte le funzioni di preprocessing
     text = remove_html_tags(text)
@@ -119,5 +120,5 @@ def preprocess_text(text, remove_stops=False):
     if remove_stops:
         text = remove_stopwords(text)
 
-    logger.info("Preprocessing del testo completato")
+    logger.info("Text preprocessing completed")
     return text
