@@ -1,26 +1,27 @@
-# Named Entity Recognition (NER) con SpaCy
+# Named Entity Recognition (NER) with SpaCy
 import spacy
+from spacy.cli.download import download
 import logging
 from configuration.config import SPACY_MODEL, TARGET_COMPANY
 
-# Configurazione del logger
+# Logger configuration
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Carica il modello SpaCy
+# Loads SpaCy model
 try:
     nlp = spacy.load(SPACY_MODEL)
-    logger.info(f"Modello SpaCy {SPACY_MODEL} caricato con successo per NER")
+    logger.info(f"SpaCy model {SPACY_MODEL} successfully loaded for NER")
 except Exception as e:
-    logger.error(f"Errore durante il caricamento del modello SpaCy per NER: {e}")
-    logger.info("Tentativo di download del modello SpaCy")
+    logger.error(f"Error during SpaCy loading for NER: {e}")
+    logger.info("SpaCy model not found, attempting to download...")
     try:
-        spacy.cli.download(SPACY_MODEL)
+        download(SPACY_MODEL)
         nlp = spacy.load(SPACY_MODEL)
-        logger.info(f"Modello SpaCy {SPACY_MODEL} scaricato e caricato con successo per NER")
+        logger.info(f"SpaCy model {SPACY_MODEL} downloaded and loaded successfully for NER")
     except Exception as e:
         logger.error(f"Impossibile scaricare il modello SpaCy per NER: {e}")
         raise
