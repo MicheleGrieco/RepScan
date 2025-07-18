@@ -23,71 +23,71 @@ except Exception as e:
         nlp = spacy.load(SPACY_MODEL)
         logger.info(f"SpaCy model {SPACY_MODEL} downloaded and loaded successfully for NER")
     except Exception as e:
-        logger.error(f"Impossibile scaricare il modello SpaCy per NER: {e}")
+        logger.error(f"Error during SpaCy model download or loading: {e}")
         raise
 
-def extract_entities(text):
+def extract_entities(text) -> list:
     """
-    Estrae le entità nominate dal testo utilizzando SpaCy
+    Extract named entities from the given text using SpaCy NER.
     
     Args:
-        text (str): Testo da analizzare
+        text (str): Text to analyze
         
     Returns:
-        list: Lista di tuple (entità, tipo)
+        list: List of tuples containing entity text and its label
     """
     if not text:
         return []
 
-    logger.info("Iniziata l'estrazione delle entità")
+    logger.info("Extracting entities from text using SpaCy NER")
 
     doc = nlp(text)
     entities = [(ent.text, ent.label_) for ent in doc.ents]
 
-    logger.info(f"Estratte {len(entities)} entità dal testo")
+    logger.info(f"{len(entities)} entities extracted from text")
     return entities
 
-def is_company_mentioned(text, company=TARGET_COMPANY):
+def is_company_mentioned(text, company=TARGET_COMPANY) -> bool:
     """
-    Verifica se l'azienda target è menzionata nel testo
+    Verifies if a specific company is mentioned in the text.
     
     Args:
-        text (str): Testo da analizzare
-        company (str): Nome dell'azienda da cercare
+        text (str): Text to analyze
+        company (str): Company name to search for
         
     Returns:
-        bool: True se l'azienda è menzionata, False altrimenti
+        bool: True if the company is mentioned, False otherwise
     """
     if not text:
         return False
 
-    # Verifica semplice con ricerca di stringhe
+    # Simple search for the company name
     if company.lower() in text.lower():
-        logger.info(f"Azienda {company} trovata con ricerca semplice")
+        logger.info(f"Company {company} found in text without NER")
         return True
 
-    # Verifica con NER
+    # Verification using NER
     entities = extract_entities(text)
 
-    # Cerca l'azienda tra le entità
+    # Search for the company in the extracted entities
     for entity, entity_type in entities:
         if (company.lower() in entity.lower()) and (entity_type in ['ORG', 'ORGANIZATION', 'PRODUCT', 'COMPANY']):
-            logger.info(f"Azienda {company} trovata con NER come {entity_type}")
+            logger.info(f"Company {company} found with NER as {entity_type}")
             return True
 
-    logger.info(f"Azienda {company} non trovata nel testo")
+    logger.info(f"Company {company} not found in text")
     return False
 
-def get_company_mentions(text, company=TARGET_COMPANY):
+def get_company_mentions(text, company=TARGET_COMPANY) -> list:
     """
-    Restituisce tutte le menzioni dell'azienda nel testo
+    Retrieve mentions of a specific company in the text.
     
     Args:
-        text (str): Testo da analizzare
-        company (str): Nome dell'azienda da cercare
+        text (str): Text to analyze
+        company (str): Company name to search for
         
     Returns:
-        list: Lista di menzioni dell'azienda
+        list: List of mentions with context and type
     """
     if not text:
         return []
@@ -95,7 +95,7 @@ def get_company_mentions(text, company=TARGET_COMPANY):
     doc = nlp(text)
     mentions = []
 
-    # Cerca menzioni dell'azienda nelle entità
+    # Search for company mentions in the entities
     for ent in doc.ents:
         if (company.lower() in ent.text.lower()) and (ent.label_ in ['ORG', 'ORGANIZATION', 'PRODUCT', 'COMPANY']):
             context_start = max(0, ent.start_char - 50)
@@ -107,5 +107,5 @@ def get_company_mentions(text, company=TARGET_COMPANY):
                 'type': ent.label_
             })
 
-    logger.info(f"Trovate {len(mentions)} menzioni dell'azienda {company}")
+    logger.info(f"Found {len(mentions)} mentions of company {company} in text")
     return mentions
