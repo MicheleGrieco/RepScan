@@ -1,176 +1,176 @@
-# RepScan - Monitoraggio Reputazione Aziendale
+# RepScan - Corporate Reputation Monitoring
 
-RepScan è un sistema avanzato per il monitoraggio della reputazione aziendale che raccoglie, analizza e valuta articoli online per determinare il sentiment pubblico verso un'azienda target. Il sistema utilizza tecniche di Natural Language Processing (NLP) e Machine Learning per fornire insight preziosi sulla percezione dell'azienda nei media.
+RepScan is an advanced system for monitoring corporate reputation that collects, analyzes, and evaluates online articles to determine public sentiment towards a target company. The system uses Natural Language Processing (NLP) and Machine Learning techniques to provide valuable insights into the company's perception in the media.
 
-## Funzionalità Principali
+## Main Features
 
-- **Raccolta Automatica di Articoli**: Scarica articoli da feed RSS (es. Google News) relativi all'azienda target
-- **Analisi del Testo**: Preprocessing, Named Entity Recognition, e Sentiment Analysis
-- **Calcolo del Punteggio Reputazionale**: Determina un indice quantitativo della reputazione aziendale
-- **Sistema di Alert**: Notifiche automatiche quando il punteggio scende sotto una soglia definita
-- **Dashboard Interattiva**: Visualizzazione dei trend reputazionali nel tempo
+- **Automatic Article Collection**: Downloads articles from RSS feeds (e.g., Google News) related to the target company
+- **Text Analysis**: Preprocessing, Named Entity Recognition, and Sentiment Analysis
+- **Reputation Score Calculation**: Determines a quantitative index of corporate reputation
+- **Alert System**: Automatic notifications when the score falls below a defined threshold
+- **Interactive Dashboard**: Visualization of reputation trends over time
 
-## Architettura del Sistema
+## System Architecture
 
-Il sistema è strutturato in moduli indipendenti che lavorano insieme per fornire un'analisi completa:
+The system is structured in independent modules that work together to provide a comprehensive analysis:
 
-1. **Scraper**: Raccoglie articoli da feed RSS configurati
-2. **Preprocessor**: Pulisce e normalizza il testo degli articoli
-3. **NER Engine**: Identifica menzioni dell'azienda target
-4. **Sentiment Analyzer**: Valuta il sentiment del testo utilizzando modelli di Deep Learning
-5. **Score Calculator**: Calcola il punteggio reputazionale combinando i risultati dell'analisi
-6. **Alert System**: Invia notifiche quando necessario
-7. **Dashboard**: Visualizza i dati in modo interattivo
+1. **Scraper**: Collects articles from configured RSS feeds
+2. **Preprocessor**: Cleans and normalizes article text
+3. **NER Engine**: Identifies mentions of the target company
+4. **Sentiment Analyzer**: Evaluates text sentiment using Deep Learning models
+5. **Score Calculator**: Calculates the reputation score by combining analysis results
+6. **Alert System**: Sends notifications when necessary
+7. **Dashboard**: Displays data interactively
 
-## Requisiti di Sistema
+## System Requirements
 
 - Python 3.8+
-- Connessione internet per il download degli articoli e dei modelli
-- Memoria RAM: almeno 4GB (8GB consigliati per migliori prestazioni)
-- Spazio su disco: almeno 2GB per i modelli di NLP
+- Internet connection for downloading articles and models
+- RAM: at least 4GB (8GB recommended for better performance)
+- Disk space: at least 2GB for NLP models
 
-## Installazione
+## Installation
 
-1. Clone del repository:
+1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/repscan.git
 cd repscan
 ```
 
-2. Installazione delle dipendenze:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Download del modello italiano di spaCy:
+3. Download the Italian spaCy model:
 ```bash
 python -m spacy download it_core_news_sm
 ```
 
-4. Configurazione delle variabili d'ambiente (per il sistema di alert):
+4. Set environment variables (for the alert system):
 ```bash
 export EMAIL_SENDER=your_email@example.com
 export EMAIL_PASSWORD=your_email_password
 export EMAIL_RECIPIENT=recipient@example.com
 ```
 
-## Configurazione
+## Configuration
 
-Il file `config.py` contiene tutte le impostazioni principali del sistema. Modifica questo file per personalizzare:
+The `config.py` file contains all the main system settings. Edit this file to customize:
 
-- URL del feed RSS
-- Nome dell'azienda target
-- Soglia per gli alert
-- Impostazioni email
-- Modello di sentiment analysis
-- Directory per il salvataggio dei dati
+- RSS feed URL
+- Target company name
+- Alert threshold
+- Email settings
+- Sentiment analysis model
+- Data storage directory
 
-## Utilizzo
+## Usage
 
-### Esecuzione dell'analisi
+### Run the analysis
 
 ```bash
 python main.py
 ```
 
-Questo comando esegue l'intero processo di analisi:
-1. Raccolta degli articoli
-2. Preprocessing del testo
-3. Riconoscimento delle entità
-4. Analisi del sentiment
-5. Calcolo del punteggio reputazionale
-6. Invio di alert (se necessario)
+This command runs the entire analysis process:
+1. Article collection
+2. Text preprocessing
+3. Entity recognition
+4. Sentiment analysis
+5. Reputation score calculation
+6. Alert sending (if necessary)
 
-### Avvio della dashboard
+### Start the dashboard
 
 ```bash
 python main.py --dashboard
 ```
 
-Questo comando avvia la dashboard Streamlit che visualizza i trend del punteggio reputazionale nel tempo.
+This command starts the Streamlit dashboard that displays reputation score trends over time.
 
-Alternativamente, puoi avviare direttamente la dashboard con:
+Alternatively, you can start the dashboard directly with:
 
 ```bash
 streamlit run dashboard.py
 ```
 
-## Automazione
+## Automation
 
-Per un monitoraggio continuo, è consigliabile configurare un job cron per eseguire l'analisi periodicamente:
+For continuous monitoring, it is recommended to set up a cron job to run the analysis periodically:
 
 ```bash
-# Esempio di job cron per eseguire l'analisi ogni 6 ore
+# Example cron job to run the analysis every 6 hours
 0 */6 * * * cd /path/to/repscan && python main.py
 ```
 
-## Struttura del Progetto
+## Project Structure
 
 ```
 repscan/
-├── config.py           # Configurazioni generali
-├── scraper.py          # Modulo per il download degli articoli
-├── preprocess.py       # Funzioni per la pulizia del testo
-├── ner.py              # Modulo per il riconoscimento delle entità
-├── sentiment_analysis.py # Modulo per l'analisi del sentiment
-├── score_calculator.py # Funzione per il calcolo del punteggio
-├── alert.py            # Modulo per l'invio degli alert
-├── dashboard.py        # Dashboard Streamlit
-├── main.py             # Script principale
-├── data/               # Directory per i dati
-│   └── reputation_scores.csv  # File con i punteggi storici
-└── requirements.txt    # Dipendenze del progetto
+├── config.py           # General configurations
+├── scraper.py          # Article download module
+├── preprocess.py       # Text cleaning functions
+├── ner.py              # Entity recognition module
+├── sentiment_analysis.py # Sentiment analysis module
+├── score_calculator.py # Score calculation function
+├── alert.py            # Alert sending module
+├── dashboard.py        # Streamlit dashboard
+├── main.py             # Main script
+├── data/               # Data directory
+│   └── reputation_scores.csv  # File with historical scores
+└── requirements.txt    # Project dependencies
 ```
 
-## Customizzazione
+## Customization
 
-### Aggiunta di Nuove Fonti
+### Adding New Sources
 
-Per aggiungere nuove fonti di articoli, modifica il file `config.py` e aggiorna l'URL del feed RSS.
+To add new article sources, edit the `config.py` file and update the RSS feed URL.
 
-### Personalizzazione del Modello di Sentiment
+### Customizing the Sentiment Model
 
-Per utilizzare un modello di sentiment diverso, modifica il parametro `SENTIMENT_MODEL` nel file `config.py`.
+To use a different sentiment model, change the `SENTIMENT_MODEL` parameter in the `config.py` file.
 
-### Regolazione della Soglia di Alert
+### Adjusting the Alert Threshold
 
-Per modificare la sensibilità del sistema di alert, regola il parametro `ALERT_THRESHOLD` nel file `config.py`.
+To modify the alert system sensitivity, adjust the `ALERT_THRESHOLD` parameter in the `config.py` file.
 
 ## Troubleshooting
 
-### Problemi con il download degli articoli
+### Issues downloading articles
 
-Se riscontri problemi con il download degli articoli, verifica:
-- La connessione internet
-- La validità dell'URL del feed RSS
-- Eventuali limitazioni di rate dal provider del feed
+If you encounter issues downloading articles, check:
+- Internet connection
+- Validity of the RSS feed URL
+- Any rate limitations from the feed provider
 
-### Errori con il modello di spaCy
+### Errors with the spaCy model
 
-Se incontri errori relativi al modello di spaCy, assicurati di aver scaricato correttamente il modello italiano:
+If you encounter errors related to the spaCy model, make sure you have correctly downloaded the Italian model:
 ```bash
 python -m spacy download it_core_news_sm
 ```
 
-### Problemi con l'invio degli alert
+### Issues sending alerts
 
-Se gli alert non vengono inviati:
-- Verifica che le variabili d'ambiente siano impostate correttamente
-- Assicurati che il server SMTP sia configurato correttamente
-- Controlla che l'applicazione abbia le autorizzazioni necessarie per inviare email
+If alerts are not sent:
+- Check that environment variables are set correctly
+- Ensure the SMTP server is properly configured
+- Make sure the application has the necessary permissions to send emails
 
-## Contributori
+## Contributors
 
 - **Michele Grieco**
 
-Sono aperto a contributi! Se desideri contribuire al progetto:
+Contributions are welcome! If you want to contribute to the project:
 
-1. Fai un fork del repository
-2. Crea un branch per la tua feature (`git checkout -b feature/amazing-feature`)
-3. Commit dei tuoi cambiamenti (`git commit -m 'Add some amazing feature'`)
-4. Push al branch (`git push origin feature/amazing-feature`)
-5. Apri una Pull Request
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Contatti
+## Contacts
 
-Per domande o supporto, contattami a [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.itm) / [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com).
+For questions or support, contact me at [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.it) / [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com).
