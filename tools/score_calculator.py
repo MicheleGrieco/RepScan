@@ -4,43 +4,43 @@ import logging
 from datetime import datetime
 from configuration.config import DATA_DIRECTORY, RESULTS_FILE
 
-# Configurazione del logger
+# Logging configuration
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Crea la directory dei dati se non esiste
+# Create data directory if it doesn't exist
 os.makedirs(DATA_DIRECTORY, exist_ok=True)
 
 def calculate_reputation_score(articles):
     """
-    Calcola il punteggio reputazionale medio ponderato
+    Calculate the reputation score based on the sentiment analysis of articles.
     
     Args:
-        articles (list): Lista di dizionari contenenti gli articoli analizzati
+        articles (list): List of dictionaries containing article data.
         
     Returns:
-        float: Punteggio reputazionale medio
+        float: Median reputation score calculated from the articles.
     """
     if not articles:
-        logger.warning("Nessun articolo disponibile per il calcolo del punteggio reputazionale")
+        logger.warning("No articles provided for reputation score calculation.")
         return 0.0
 
-    logger.info("Calcolo del punteggio reputazionale")
+    logger.info("Calculating reputation score from articles...")
 
-    # Estrai i sentiment scores e i pesi
+    # Ext
     sentiment_scores = [article.get('sentiment_score', 0.0) for article in articles]
 
-    # Calcola i pesi in base alla lunghezza del contenuto dell'articolo
-    # Articoli più lunghi hanno un peso maggiore (ipotesi: più contenuto = più rilevante)
+    # Calculates the weights based on article length
+    # Lengthier articles weigh more (more content = more weight)
     weights = [len(article.get('content', '')) for article in articles]
 
-    # Normalizza i pesi
+    # Normalize weights
     total_weight = sum(weights)
     if total_weight == 0:
-        logger.warning("Peso totale zero, utilizzo pesi uniformi")
+        logger.warning("Total weight is zero, using equal weights for all articles.")
         weights = [1] * len(articles)
         total_weight = len(articles)
 
