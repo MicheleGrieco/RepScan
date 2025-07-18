@@ -171,10 +171,6 @@ Sono aperto a contributi! Se desideri contribuire al progetto:
 4. Push al branch (`git push origin feature/amazing-feature`)
 5. Apri una Pull Request
 
-## Licenza
-
-Questo progetto è distribuito con licenza MIT. Vedi il file `LICENSE` per maggiori dettagli.
-
 ## Contatti
 
 Per domande o supporto, contattami a [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.itm) / [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com).

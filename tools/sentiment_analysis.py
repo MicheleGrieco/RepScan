@@ -4,8 +4,10 @@ from configuration.config import SENTIMENT_MODEL
 
 logger = logging.getLogger(__name__)
 
-# Usa un modello italiano disponibile
-SENTIMENT_MODEL = "neuraly/bert-base-italian-cased-sentiment"
+# Usa il modello specificato nella configurazione. In passato qui veniva
+# sovrascritto il nome del modello, rendendo impossibile la personalizzazione
+# tramite ``config.py``. Ora utilizziamo direttamente il valore proveniente
+# dalla configurazione.
 
 try:
     # Carica il modello e il tokenizer
