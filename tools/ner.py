@@ -23,8 +23,8 @@ Usage:
     print(mentions)
 """
 
-import spacy
-from spacy.cli.download import download
+import spacy # for NLP and NER
+from spacy.cli.download import download # for downloading SpaCy models
 import logging
 from configuration.config import SPACY_MODEL, TARGET_COMPANY
 
@@ -33,7 +33,7 @@ class NamedEntityRecognizer:
     A class for performing Named Entity Recognition (NER) using SpaCy.
     """
     
-    def __init__(self, model_name=SPACY_MODEL):
+    def __init__(self, model_name=SPACY_MODEL) -> None:
         """
         Initialize the NER system with a specific SpaCy model.
         
@@ -50,7 +50,7 @@ class NamedEntityRecognizer:
         # Initialize SpaCy model
         self.nlp = self._initialize_spacy_model(model_name)
 
-    def _initialize_spacy_model(self, model_name):
+    def _initialize_spacy_model(self, model_name) -> spacy.language.Language:
         """
         Initialize the SpaCy model with fallback options.
         
