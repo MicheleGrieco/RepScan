@@ -1,87 +1,132 @@
+#type: ignore
+
+"""
+Module name: sentiment_analysis.py
+Author: Michele Grieco
+Description:
+    This module provides a class for sentiment analysis using transformer models. It includes methods for initializing the model,
+    analyzing sentiment, and converting sentiment scores to labels.
+    It also includes a fallback keyword-based sentiment analysis method in case the model fails to load.
+    The module uses the Hugging Face transformers library.
+Usage:
+    from sentiment_analysis import SentimentAnalyzer
+
+    analyzer = SentimentAnalyzer()
+    score = analyzer.analyze_sentiment("Your text here")
+    label = analyzer.get_sentiment_label(score)
+"""
+
 import logging
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 from configuration.config import SENTIMENT_MODEL
 
-logger = logging.getLogger(__name__)
-
-# Usa il modello specificato nella configurazione. In passato qui veniva
-# sovrascritto il nome del modello, rendendo impossibile la personalizzazione
-# tramite ``config.py``. Ora utilizziamo direttamente il valore proveniente
-# dalla configurazione.
-
-try:
-    # Carica il modello e il tokenizer
-    sentiment_analyzer = pipeline(
-        "sentiment-analysis",
-        model=SENTIMENT_MODEL,
-        tokenizer=SENTIMENT_MODEL
-    )
-    logger.info(f"Modello di sentiment analysis {SENTIMENT_MODEL} caricato con successo")
-except Exception as e:
-    logger.error(f"Errore durante il caricamento del modello di sentiment: {str(e)}")
-    # Fallback a un modello più semplice se necessario
-    sentiment_analyzer = None
-
-def analyze_sentiment(text):
+class SentimentAnalyzer:
     """
-    Analizza il sentiment del testo utilizzando un modello preaddestrato
-
-    Args:
-        text (str): Testo da analizzare
-
-    Returns:
-        float: Punteggio di sentiment tra -1 (negativo) e 1 (positivo)
+    Class for sentiment analysis using transformer models
     """
-    try:
-        if sentiment_analyzer:
-            # Limita il testo alla lunghezza massima accettata dal modello
-            max_length = 512
-            if len(text) > max_length:
-                text = text[:max_length]
+    
+    def __init__(self, model_name=SENTIMENT_MODEL) -> None:
+        """
+        Initialize the sentiment analyzer
+        
+        Args:
+            model_name (str): Name of the model to use
+        """
+        self.logger = logging.getLogger(__name__)
+        self.model_name = model_name
+        self.sentiment_analyzer = self._initialize_model()
+        
+        # Keywords for fallback
+        self.positive_words = ['ottimo', 'eccellente', 'positivo', 'buono', 'successo']
+        self.negative_words = ['pessimo', 'negativo', 'cattivo', 'fallimento', 'problema']
 
-            result = sentiment_analyzer(text)
+    def _initialize_model(self) -> pipeline:
+        """
+        Initialize the sentiment analysis model
+        
+        Returns:
+            pipeline: Transformers pipeline or None in case of error
+        """
+        try:
+            analyzer = pipeline(
+                "sentiment-analysis",
+                model=self.model_name,
+                tokenizer=self.model_name
+            )
+            self.logger.info(f"Sentiment analysis model {self.model_name} loaded successfully")
+            return analyzer
+        except Exception as e:
+            self.logger.error(f"Error loading sentiment model: {str(e)}")
+            return None
 
-            # Converti il risultato in un punteggio tra -1 e 1
-            # Assumendo che il modello restituisca etichette come POSITIVE/NEGATIVE/NEUTRAL
-            if result[0]['label'] == 'POSITIVE':
-                return result[0]['score']
-            elif result[0]['label'] == 'NEGATIVE':
-                return -result[0]['score']
+    def _fallback_analysis(self, text) -> float:
+        """
+        Keyword-based sentiment analysis (fallback)
+        
+        Args:
+            text (str): Text to analyze
+            
+        Returns:
+            float: Sentiment score between -1 and 1
+        """
+        self.logger.warning("Using keyword-based fallback sentiment analysis")
+        text = text.lower()
+        positive_count = sum(1 for word in self.positive_words if word in text)
+        negative_count = sum(1 for word in self.negative_words if word in text)
+
+        total = positive_count + negative_count
+        if total == 0:
+            return 0.0
+
+        return (positive_count - negative_count) / total
+
+    def analyze_sentiment(self, text) -> float:
+        """
+        Analyze the sentiment of the text
+        
+        Args:
+            text (str): Text to analyze
+            
+        Returns:
+            float: Sentiment score between -1 and 1
+        """
+        try:
+            if self.sentiment_analyzer:
+                # Limit text to maximum length
+                max_length = 512
+                if len(text) > max_length:
+                    text = text[:max_length]
+
+                result = self.sentiment_analyzer(text)
+
+                # Convert result to a score between -1 and 1
+                if result[0]['label'] == 'POSITIVE':
+                    return result[0]['score']
+                elif result[0]['label'] == 'NEGATIVE':
+                    return -result[0]['score']
+                else:
+                    return 0.0
             else:
-                return 0.0
+                return self._fallback_analysis(text)
+
+        except Exception as e:
+            self.logger.error(f"Error in sentiment analysis: {str(e)}")
+            return 0.0
+
+    @staticmethod
+    def get_sentiment_label(score) -> str:
+        """
+        Convert a sentiment score to a label
+        
+        Args:
+            score (float): Sentiment score between -1 and 1
+            
+        Returns:
+            str: Sentiment label (Positive, Neutral, Negative)
+        """
+        if score > 0.2:
+            return "Positive"
+        elif score < -0.2:
+            return "Negative"
         else:
-            # Implementazione di fallback semplice basata su parole chiave
-            logger.warning("Usando analisi del sentiment di fallback basata su parole chiave")
-            positive_words = ['ottimo', 'eccellente', 'positivo', 'buono', 'successo']
-            negative_words = ['pessimo', 'negativo', 'cattivo', 'fallimento', 'problema']
-
-            text = text.lower()
-            positive_count = sum(1 for word in positive_words if word in text)
-            negative_count = sum(1 for word in negative_words if word in text)
-
-            total = positive_count + negative_count
-            if total == 0:
-                return 0.0
-
-            return (positive_count - negative_count) / total
-
-    except Exception as e:
-        logger.error(f"Errore nell'analisi del sentiment: {str(e)}")
-        return 0.0
-
-def get_sentiment_label(score):
-    """
-    Converte un punteggio di sentiment in un'etichetta leggibile
-
-    Args:
-        score (float): Punteggio di sentiment tra -1 e 1
-
-    Returns:
-        str: Etichetta di sentiment (Positivo, Neutro, Negativo)
-    """
-    if score > 0.2:
-        return "Positivo"
-    elif score < -0.2:
-        return "Negativo"
-    else:
-        return "Neutro"
+            return "Neutral"
