@@ -8,133 +8,137 @@ from configuration.config import (
     SMTP_SERVER, SMTP_PORT, ALERT_THRESHOLD, TARGET_COMPANY
 )
 
-# Logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-def should_send_alert(score) -> bool:
+class AlertSystem:
     """
-    Determine if an alert should be sent based on the reputational score.
+    Class for managing reputation score alerts via email
+    """
     
-    Args:
-        score (float): Reputational score to evaluate
+    def __init__(self) -> None:
+        """
+        Initialize the AlertSystem with logging configuration
+        """
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+    def should_send_alert(self, score) -> bool:
+        """
+        Determine if an alert should be sent based on the reputational score.
         
-    Returns:
-        bool: True if the score is below the alert threshold, False otherwise
-    """
-    return score < ALERT_THRESHOLD
+        Args:
+            score (float): Reputational score to evaluate
+            
+        Returns:
+            bool: True if the score is below the alert threshold, False otherwise
+        """
+        return score < ALERT_THRESHOLD
 
-def create_alert_message(score, articles) -> str:
-    """
-    Create an HTML alert message for low reputational scores.
-    
-    Args:
-        score (float): Reputational score that triggered the alert
-        articles (list): List of dictionaries containing analyzed articles
+    def create_alert_message(self, score, articles) -> str:
+        """
+        Create an HTML alert message for low reputational scores.
         
-    Returns:
-        str: HTML formatted alert message
-    """
-    # Format the score to two decimal places
-    score_str = f"{score:.2f}"
+        Args:
+            score (float): Reputational score that triggered the alert
+            articles (list): List of dictionaries containing analyzed articles
+            
+        Returns:
+            str: HTML formatted alert message
+        """
+        score_str = f"{score:.2f}"
 
-    # Order the articles by sentiment score
-    negative_articles = sorted(
-        [a for a in articles if a.get('sentiment_score', 0) < 0],
-        key=lambda x: x.get('sentiment_score', 0)
-    )
+        negative_articles = sorted(
+            [a for a in articles if a.get('sentiment_score', 0) < 0],
+            key=lambda x: x.get('sentiment_score', 0)
+        )
 
-    # Create HTML message
-    html = f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: Arial, sans-serif; }}
-            .alert {{ background-color: #f8d7da; padding: 15px; border-radius: 5px; }}
-            .article {{ margin-bottom: 20px; padding: 10px; border-left: 4px solid #dc3545; }}
-            .score {{ font-weight: bold; color: #dc3545; }}
-            .title {{ font-weight: bold; }}
-            .link {{ color: #0066cc; }}
-        </style>
-    </head>
-    <body>
-        <h2>⚠️ Alert - Low Reputational Score</h2>
-        <div class="alert">
-            <p>The reputational score for <strong>{TARGET_COMPANY}</strong> is <span class="score">{score_str}</span>, 
-            which is under the alert threshold ({ALERT_THRESHOLD}).</p>
-            <p>Date and time of the analysis: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-        </div>
-        
-        <h3>Negative articles detected:</h3>
-    """
-
-    # Add each negative article to the HTML
-    for article in negative_articles[:5]:  # Show only the top 5 negative articles
-        sentiment_score = article.get('sentiment_score', 0)
-        sentiment_label = article.get('sentiment_label', 'N/A')
-        title = article.get('title', 'Titolo non disponibile')
-        link = article.get('link', '#')
-
-        html += f"""
-        <div class="article">
-            <p class="title">{title}</p>
-            <p>Sentiment: <span class="score">{sentiment_score:.2f}</span> ({sentiment_label})</p>
-            <p><a href="{link}" class="link">Full read</a></p>
-        </div>
+        html = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; }}
+                .alert {{ background-color: #f8d7da; padding: 15px; border-radius: 5px; }}
+                .article {{ margin-bottom: 20px; padding: 10px; border-left: 4px solid #dc3545; }}
+                .score {{ font-weight: bold; color: #dc3545; }}
+                .title {{ font-weight: bold; }}
+                .link {{ color: #0066cc; }}
+            </style>
+        </head>
+        <body>
+            <h2>⚠️ Alert - Low Reputational Score</h2>
+            <div class="alert">
+                <p>The reputational score for <strong>{TARGET_COMPANY}</strong> is <span class="score">{score_str}</span>, 
+                which is under the alert threshold ({ALERT_THRESHOLD}).</p>
+                <p>Date and time of the analysis: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+            </div>
+            
+            <h3>Negative articles detected:</h3>
         """
 
-    html += """
-        <p>This is an automatic message generated by RepScan. Please do not answer this email.</p>
-    </body>
-    </html>
-    """
+        for article in negative_articles[:5]:
+            sentiment_score = article.get('sentiment_score', 0)
+            sentiment_label = article.get('sentiment_label', 'N/A')
+            title = article.get('title', 'Title not available')
+            link = article.get('link', '#')
 
-    return html
+            html += f"""
+            <div class="article">
+                <p class="title">{title}</p>
+                <p>Sentiment: <span class="score">{sentiment_score:.2f}</span> ({sentiment_label})</p>
+                <p><a href="{link}" class="link">Full article</a></p>
+            </div>
+            """
 
-def send_alert_email(score, articles) -> bool:
-    """
-    Invia un'email di alert quando il punteggio reputazionale è troppo basso
-    
-    Args:
-        score (float): Punteggio reputazionale
-        articles (list): Lista di dizionari contenenti gli articoli analizzati
+        html += """
+            <p>This is an automatic message generated by RepScan. Please do not reply to this email.</p>
+        </body>
+        </html>
+        """
+
+        return html
+
+    def send_alert_email(self, score, articles) -> bool:
+        """
+        Send an alert email when the reputation score is too low
         
-    Returns:
-        bool: True se l'email è stata inviata con successo, False altrimenti
-    """
-    if not should_send_alert(score):
-        logger.info("Punteggio reputazionale sopra la soglia di alert, nessun alert inviato")
-        return False
+        Args:
+            score (float): Reputation score
+            articles (list): List of dictionaries containing analyzed articles
+            
+        Returns:
+            bool: True if email was sent successfully, False otherwise
+        """
+        if not self.should_send_alert(score):
+            self.logger.info("Reputation score above alert threshold, no alert sent.")
+            return False
 
-    logger.info(f"Invio di un alert per punteggio reputazionale basso: {score:.2f}")
+        self.logger.info(f"Sending alert for low reputation score: {score:.2f}")
 
-    # Verifica che le credenziali email siano impostate
-    if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        logger.error("Credenziali email non configurate. Impossibile inviare l'alert.")
-        return False
+        if not EMAIL_SENDER or not EMAIL_PASSWORD:
+            self.logger.error("Email credentials not configured. Cannot send alert.")
+            return False
 
-    try:
-        # Crea il messaggio
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = f"[ALERT] Punteggio Reputazionale Basso per {TARGET_COMPANY}: {score:.2f}"
-        msg['From'] = EMAIL_SENDER
-        msg['To'] = EMAIL_RECIPIENT
+        try:
+            # Create the message
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f"[ALERT] Low Reputation Score for {TARGET_COMPANY}: {score:.2f}"
+            msg['From'] = EMAIL_SENDER
+            msg['To'] = EMAIL_RECIPIENT
 
-        # Crea il corpo del messaggio
-        html_content = create_alert_message(score, articles)
-        msg.attach(MIMEText(html_content, 'html'))
+            # Create message body
+            html_content = self.create_alert_message(score, articles)
+            msg.attach(MIMEText(html_content, 'html'))
 
-        # Invia l'email
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.send_message(msg)
+            # Send the email
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                server.starttls()
+                server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+                server.send_message(msg)
 
-        logger.info(f"Alert inviato con successo a {EMAIL_RECIPIENT}")
-        return True
-    except Exception as e:
-        logger.error(f"Errore durante l'invio dell'alert: {e}")
-        return False
+            self.logger.info(f"Alert sent successfully to {EMAIL_RECIPIENT}")
+            return True
+        except Exception as e:
+            self.logger.error(f"Error sending alert: {e}")
+            return False
