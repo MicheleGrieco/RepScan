@@ -1,105 +1,131 @@
-import pandas as pd
-import os
-import logging
+"""
+Module name: score_calculator.py
+Author: Michele Grieco
+Description:
+    This module provides a ReputationScoreCalculator class for calculating, saving, and retrieving reputation scores
+    based on sentiment analysis of articles. It uses pandas for data handling and ensures the results are stored in a CSV file.
+Usage:
+    from tools.score_calculator import ReputationScoreCalculator
+    calculator = ReputationScoreCalculator()
+    score = calculator.calculate_reputation_score(articles)
+    calculator.save_reputation_score(score)
+    historical_scores = calculator.get_historical_scores()
+"""
+
+import pandas as pd # for data manipulation
+import os # for file operations
+import logging 
 from datetime import datetime
 from configuration.config import DATA_DIRECTORY, RESULTS_FILE
 
-# Logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Create data directory if it doesn't exist
-os.makedirs(DATA_DIRECTORY, exist_ok=True)
-
-def calculate_reputation_score(articles):
+class ReputationScoreCalculator:
     """
-    Calculate the reputation score based on the sentiment analysis of articles.
+    Class for calculating, saving and retrieving reputation scores
+    """
     
-    Args:
-        articles (list): List of dictionaries containing article data.
+    def __init__(self) -> None:
+        """
+        Initialize the ReputationScoreCalculator with logging configuration
+        and ensure data directory exists
+        """
+        # Logger configuration
+        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
         
-    Returns:
-        float: Median reputation score calculated from the articles.
-    """
-    if not articles:
-        logger.warning("No articles provided for reputation score calculation.")
-        return 0.0
+        # Create data directory if it doesn't exist
+        os.makedirs(DATA_DIRECTORY, exist_ok=True)
+        
+        self.results_file = RESULTS_FILE
 
-    logger.info("Calculating reputation score from articles...")
+    def calculate_reputation_score(self, articles) -> float:
+        """
+        Calculate the reputation score based on the sentiment analysis of articles.
+        
+        Args:
+            articles (list): List of dictionaries containing article data.
+            
+        Returns:
+            float: Weighted average reputation score calculated from the articles.
+        """
+        if not articles:
+            self.logger.warning("No articles provided for reputation score calculation.")
+            return 0.0
 
-    # Ext
-    sentiment_scores = [article.get('sentiment_score', 0.0) for article in articles]
+        self.logger.info("Calculating reputation score from articles...")
 
-    # Calculates the weights based on article length
-    # Lengthier articles weigh more (more content = more weight)
-    weights = [len(article.get('content', '')) for article in articles]
+        # Extract sentiment scores
+        sentiment_scores = [article.get('sentiment_score', 0.0) for article in articles]
 
-    # Normalize weights
-    total_weight = sum(weights)
-    if total_weight == 0:
-        logger.warning("Total weight is zero, using equal weights for all articles.")
-        weights = [1] * len(articles)
-        total_weight = len(articles)
+        # Calculate weights based on article length
+        weights = [len(article.get('content', '')) for article in articles]
 
-    normalized_weights = [w / total_weight for w in weights]
+        # Normalize weights
+        total_weight = sum(weights)
+        if total_weight == 0:
+            self.logger.warning("Total weight is zero, using equal weights for all articles.")
+            weights = [1] * len(articles)
+            total_weight = len(articles)
 
-    # Calcola il punteggio medio ponderato
-    weighted_score = sum(score * weight for score, weight in zip(sentiment_scores, normalized_weights))
+        normalized_weights = [w / total_weight for w in weights]
 
-    logger.info(f"Punteggio reputazionale calcolato: {weighted_score:.2f}")
-    return weighted_score
+        # Calculate weighted average score
+        weighted_score = sum(score * weight for score, weight 
+                           in zip(sentiment_scores, normalized_weights))
 
-def save_reputation_score(score, timestamp=None):
-    """
-    Salva il punteggio reputazionale in un file CSV
-    
-    Args:
-        score (float): Punteggio reputazionale
-        timestamp (str, optional): Timestamp dell'analisi. Se None, usa il timestamp corrente.
-    """
-    if timestamp is None:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.logger.info(f"Calculated reputation score: {weighted_score:.2f}")
+        return weighted_score
 
-    logger.info(f"Salvataggio del punteggio reputazionale: {score:.2f} al {timestamp}")
+    def save_reputation_score(self, score, timestamp=None) -> None:
+        """
+        Save the reputation score to a CSV file
+        
+        Args:
+            score (float): Reputation score
+            timestamp (str, optional): Analysis timestamp. If None, uses current timestamp.
+        """
+        if timestamp is None:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Crea un DataFrame per il nuovo record
-    new_record = pd.DataFrame({
-        'timestamp': [timestamp],
-        'score': [score]
-    })
+        self.logger.info(f"Saving reputation score: {score:.2f} at {timestamp}")
 
-    try:
-        # Carica il file esistente se presente
-        if os.path.exists(RESULTS_FILE):
-            df = pd.read_csv(RESULTS_FILE)
-            df = pd.concat([df, new_record], ignore_index=True)
-        else:
-            df = new_record
+        # Create DataFrame for new record
+        new_record = pd.DataFrame({
+            'timestamp': [timestamp],
+            'score': [score]
+        })
 
-        # Salva il DataFrame aggiornato
-        df.to_csv(RESULTS_FILE, index=False)
-        logger.info(f"Punteggio reputazionale salvato con successo in {RESULTS_FILE}")
-    except Exception as e:
-        logger.error(f"Errore durante il salvataggio del punteggio reputazionale: {e}")
+        try:
+            # Load existing file if present
+            if os.path.exists(self.results_file):
+                df = pd.read_csv(self.results_file)
+                df = pd.concat([df, new_record], ignore_index=True)
+            else:
+                df = new_record
 
-def get_historical_scores():
-    """
-    Recupera i punteggi reputazionali storici dal file CSV
-    
-    Returns:
-        pandas.DataFrame: DataFrame contenente i punteggi reputazionali storici
-    """
-    if not os.path.exists(RESULTS_FILE):
-        logger.warning(f"File {RESULTS_FILE} non trovato. Restituisco un DataFrame vuoto.")
-        return pd.DataFrame(columns=['timestamp', 'score'])
+            # Save updated DataFrame
+            df.to_csv(self.results_file, index=False)
+            self.logger.info(f"Reputation score successfully saved to {self.results_file}")
+        except Exception as e:
+            self.logger.error(f"Error while saving reputation score: {e}")
 
-    try:
-        df = pd.read_csv(RESULTS_FILE)
-        logger.info(f"Caricati {len(df)} record di punteggi reputazionali storici")
-        return df
-    except Exception as e:
-        logger.error(f"Errore durante il caricamento dei punteggi reputazionali: {e}")
-        return pd.DataFrame(columns=['timestamp', 'score'])
+    def get_historical_scores(self) -> pd.DataFrame:
+        """
+        Retrieve historical reputation scores from CSV file
+        
+        Returns:
+            pandas.DataFrame: DataFrame containing historical reputation scores
+        """
+        if not os.path.exists(self.results_file):
+            self.logger.warning(f"File {self.results_file} not found. Returning empty DataFrame.")
+            return pd.DataFrame(columns=['timestamp', 'score'])
+
+        try:
+            df = pd.read_csv(self.results_file)
+            self.logger.info(f"Loaded {len(df)} historical reputation score records")
+            return df
+        except Exception as e:
+            self.logger.error(f"Error while loading reputation scores: {e}")
+            return pd.DataFrame(columns=['timestamp', 'score'])
