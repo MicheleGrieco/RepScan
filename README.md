@@ -49,21 +49,33 @@ python -m spacy download it_core_news_sm
 
 4. Set environment variables (for the alert system):
 ```bash
-export EMAIL_SENDER=your_email@example.com
-export EMAIL_PASSWORD=your_email_password
-export EMAIL_RECIPIENT=recipient@example.com
+# On Windows
+setx EMAIL_SENDER "your_email@example.com"
+setx EMAIL_PASSWORD "your_email_password"
+setx EMAIL_RECIPIENT "recipient@example.com"
 ```
 
-## Configuration
+## Project Structure
 
-The `config.py` file contains all the main system settings. Edit this file to customize:
-
-- RSS feed URL
-- Target company name
-- Alert threshold
-- Email settings
-- Sentiment analysis model
-- Data storage directory
+```
+repscan/
+├── configuration/
+│   └── config.py        # General configurations
+├── preprocessing/
+│   └── preprocess.py    # Text preprocessing module
+├── tools/
+│   ├── alert.py         # Alert system module
+│   ├── ner.py          # Named Entity Recognition module
+│   ├── scraper.py      # Article scraping module
+│   ├── sentiment_analysis.py  # Sentiment analysis module
+│   └── score_calculator.py    # Score calculation module
+├── view/
+│   └── dashboard.py     # Streamlit dashboard
+├── main.py             # Main application script
+├── data/               # Data directory
+│   └── reputation_scores.csv  # Historical scores
+└── requirements.txt    # Project dependencies
+```
 
 ## Usage
 
@@ -73,13 +85,13 @@ The `config.py` file contains all the main system settings. Edit this file to cu
 python main.py
 ```
 
-This command runs the entire analysis process:
-1. Article collection
-2. Text preprocessing
-3. Entity recognition
-4. Sentiment analysis
+This command executes the RepScanAnalyzer which performs:
+1. Article collection via RSS feeds
+2. Text preprocessing and cleaning
+3. Named Entity Recognition for company mentions
+4. Sentiment analysis on relevant articles
 5. Reputation score calculation
-6. Alert sending (if necessary)
+6. Alert sending if score is below threshold
 
 ### Start the dashboard
 
@@ -89,88 +101,52 @@ python main.py --dashboard
 
 This command starts the Streamlit dashboard that displays reputation score trends over time.
 
-Alternatively, you can start the dashboard directly with:
+## Configuration
 
-```bash
-streamlit run dashboard.py
-```
+Edit `configuration/config.py` to customize:
+- `RSS_FEED_URL`: URL for article collection
+- `TARGET_COMPANY`: Company name to monitor
+- `ALERT_THRESHOLD`: Threshold for alerts
+- `EMAIL_*`: Email configuration
+- `SENTIMENT_MODEL`: Model for sentiment analysis
+- `DATA_DIRECTORY`: Data storage location
 
 ## Automation
 
-For continuous monitoring, it is recommended to set up a cron job to run the analysis periodically:
-
-```bash
-# Example cron job to run the analysis every 6 hours
-0 */6 * * * cd /path/to/repscan && python main.py
-```
-
-## Project Structure
-
-```
-repscan/
-├── config.py           # General configurations
-├── scraper.py          # Article download module
-├── preprocess.py       # Text cleaning functions
-├── ner.py              # Entity recognition module
-├── sentiment_analysis.py # Sentiment analysis module
-├── score_calculator.py # Score calculation function
-├── alert.py            # Alert sending module
-├── dashboard.py        # Streamlit dashboard
-├── main.py             # Main script
-├── data/               # Data directory
-│   └── reputation_scores.csv  # File with historical scores
-└── requirements.txt    # Project dependencies
-```
-
-## Customization
-
-### Adding New Sources
-
-To add new article sources, edit the `config.py` file and update the RSS feed URL.
-
-### Customizing the Sentiment Model
-
-To use a different sentiment model, change the `SENTIMENT_MODEL` parameter in the `config.py` file.
-
-### Adjusting the Alert Threshold
-
-To modify the alert system sensitivity, adjust the `ALERT_THRESHOLD` parameter in the `config.py` file.
+For Windows Task Scheduler:
+1. Open Task Scheduler
+2. Create Basic Task
+3. Set trigger (e.g., every 6 hours)
+4. Action: Start Program
+5. Program/script: `python`
+6. Arguments: `main.py`
+7. Start in: `C:\path\to\repscan`
 
 ## Troubleshooting
 
-### Issues downloading articles
+### Article Collection Issues
+- Check internet connection
+- Verify RSS feed URL in config
+- Check feed provider rate limits
 
-If you encounter issues downloading articles, check:
-- Internet connection
-- Validity of the RSS feed URL
-- Any rate limitations from the feed provider
-
-### Errors with the spaCy model
-
-If you encounter errors related to the spaCy model, make sure you have correctly downloaded the Italian model:
+### NLP Model Issues
+Verify spaCy model installation:
 ```bash
 python -m spacy download it_core_news_sm
 ```
 
-### Issues sending alerts
-
-If alerts are not sent:
-- Check that environment variables are set correctly
-- Ensure the SMTP server is properly configured
-- Make sure the application has the necessary permissions to send emails
+### Alert System Issues
+Check:
+- Environment variables are set correctly
+- SMTP server configuration
+- Email permissions and security settings
 
 ## Contributors
 
 - **Michele Grieco**
 
-Contributions are welcome! If you want to contribute to the project:
+## Contact
 
-1. Fork the repository
-2. Create a branch for your feature (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Contacts
-
-For questions or support, contact me at [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.it) / [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com).
+For support or questions:
+- Academic: [m.grieco31@studenti.uniba.it](mailto:m.grieco31@studenti.uniba.it)
+- Personal: [michelegrieco92@gmail.com](mailto:michelegrieco92@gmail.com)
