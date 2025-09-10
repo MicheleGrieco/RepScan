@@ -6,11 +6,11 @@ from datetime import datetime, timedelta
 import numpy as np
 from configuration.config import DASHBOARD_TITLE, TARGET_COMPANY
 from tools.score_calculator import get_historical_scores
-from tools.sentiment_analysis import get_sentiment_label
+from tools.sentiment_analysis import SentimentAnalyzer
 
-def run_dashboard():
+def run_dashboard() -> None:
     """
-    Avvia la dashboard Streamlit per visualizzare l'andamento del punteggio reputazionale
+    Run Streamlit dashboard to visualize reputation score trends
     """
     st.set_page_config(
         page_title=DASHBOARD_TITLE,
@@ -19,40 +19,41 @@ def run_dashboard():
     )
 
     st.title(DASHBOARD_TITLE)
-    st.markdown(f"Monitoraggio della reputazione online per **{TARGET_COMPANY}**")
+    st.markdown(f"Online reputation monitoring for **{TARGET_COMPANY}**")
 
-    # Carica i dati storici
+    # Load historical scores
     df = get_historical_scores()
 
     if df.empty:
-        st.warning("Nessun dato disponibile. Esegui prima l'analisi per raccogliere i dati.")
+        st.warning("No data available, run data collection analysis first.")
         return
 
-    # Converti la colonna timestamp in datetime
+    # Convert timestamp to datetime
     df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-    # Aggiungi una colonna per il sentiment label
-    df['sentiment_label'] = df['score'].apply(get_sentiment_label)
+    # Add sentiment labels
+    df['sentiment_label'] = df['score'].apply(SentimentAnalyzer.get_sentiment_label)
 
-    # Filtra i dati per intervallo di tempo
+    # Time period filter
     col1, col2 = st.columns(2)
     with col1:
         period = st.selectbox(
-            "Seleziona periodo",
-            ["Ultimi 7 giorni", "Ultimi 30 giorni", "Ultimi 90 giorni", "Tutto"]
+            "Select time period",
+            ["Last 7 days", "Last 30 days", "Last 90 days", "Everytime"]
         )
 
+    # Refresh button
     with col2:
-        refresh = st.button("Aggiorna dati")
+        refresh = st.button("Update Data")
 
-    # Applica il filtro
-    if period == "Ultimi 7 giorni":
+    # Apply time period filter
+    if period == "Last 7 days":
         cutoff = datetime.now() - timedelta(days=7)
         filtered_df = df[df['timestamp'] >= cutoff]
-    elif period == "Ultimi 30 giorni":
+    elif period == "Last 30 days":
         cutoff = datetime.now() - timedelta(days=30)
         filtered_df = df[df['timestamp'] >= cutoff]
-    elif period == "Ultimi 90 giorni":
+    elif period == "Last 90 days":
         cutoff = datetime.now() - timedelta(days=90)
         filtered_df = df[df['timestamp'] >= cutoff]
     else:
