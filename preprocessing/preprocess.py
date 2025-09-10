@@ -11,16 +11,18 @@ Usage:
     cleaned_text = preprocessor.preprocess(raw_text, remove_stops=True)
 """
 
-import re
-import unicodedata
-import spacy
+import re # for regular expressions
+import unicodedata # for Unicode normalization
+import spacy # for NLP tasks
 from spacy.cli.download import download
-import logging
-from bs4 import BeautifulSoup
+import logging 
+from bs4 import BeautifulSoup # for HTML tag removal
 from configuration.config import SPACY_MODEL
 
 class TextPreprocessor:
-    def __init__(self, model_name=SPACY_MODEL):
+    """A class for preprocessing text data, including removing HTML tags, URLs, special characters, and stopwords."""
+    
+    def __init__(self, model_name=SPACY_MODEL) -> None:
         """
         Initialize the TextPreprocessor with a specific SpaCy model.
         
@@ -37,7 +39,7 @@ class TextPreprocessor:
         # Initialize SpaCy model
         self.nlp = self._initialize_spacy_model(model_name)
 
-    def _initialize_spacy_model(self, model_name):
+    def _initialize_spacy_model(self, model_name) -> spacy.language.Language:
         """
         Initialize the SpaCy model with fallback options.
         
@@ -69,37 +71,53 @@ class TextPreprocessor:
                     self.logger.critical("Importing SpaCy model failed, please check your installation and model name.")
                     raise
 
-    def remove_html_tags(self, text):
+    def remove_html_tags(self, text) -> str:
         """
         Remove HTML tags from the text
+        Args:
+            text (str): Text from which to remove HTML tags
+        Returns:
+            str: Text without HTML tags
         """
         return BeautifulSoup(text, "html.parser").get_text()
 
-    def remove_urls(self, text):
+    def remove_urls(self, text) -> str:
         """
         Remove URLs from the text
+        Args:
+            text (str): Text from which to remove URLs
+        Returns:
+            str: Text without URLs
         """
         url_pattern = re.compile(r'https?://\S+|www\.\S+')
         return url_pattern.sub('', text)
 
-    def remove_special_chars(self, text):
+    def remove_special_chars(self, text) -> str:
         """
         Remove special characters from the text and normalize it
+        Args:
+            text (str): Text from which to remove special characters
+        Returns:
+            str: Cleaned and normalized text
         """
         text = unicodedata.normalize('NFKD', text)
         text = re.sub(r'[^\w\s\.,;:!?]', '', text)
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
 
-    def remove_stopwords(self, text):
+    def remove_stopwords(self, text) -> str:
         """
         Remove stopwords from the text using SpaCy
+        Args:
+            text (str): Text from which to remove stopwords
+        Returns:
+            str: Text without stopwords
         """
         doc = self.nlp(text)
         filtered_tokens = [token.text for token in doc if not token.is_stop]
         return ' '.join(filtered_tokens)
 
-    def preprocess(self, text, remove_stops=False):
+    def preprocess(self, text, remove_stops=False) -> str:
         """
         Execute all preprocessing steps on the input text.
         
