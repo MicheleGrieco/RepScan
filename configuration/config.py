@@ -12,14 +12,14 @@ Usage:
 import os
 
 # General configurations
-RSS_FEED_URL = "https://news.google.com/rss/search?q=Enel&hl=it&gl=IT&ceid=IT:it"
 TARGET_COMPANY = "Enel" # Target company for reputation monitoring
+RSS_FEED_URL = f"https://news.google.com/rss/search?q={TARGET_COMPANY}&hl=it&gl=IT&ceid=IT:it"
 ALERT_THRESHOLD = -0.3  # Alert threshold for sentiment score
 
 # Email configurations
 EMAIL_SENDER = os.environ.get("EMAIL_SENDER")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
-EMAIL_RECIPIENT = os.environ.get("EMAIL_RECIPIENT", "michelegrieco92@gmail.com")
+EMAIL_RECIPIENT = os.environ.get("EMAIL_RECIPIENT", "admin@example.com")
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
