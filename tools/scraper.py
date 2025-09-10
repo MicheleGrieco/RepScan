@@ -41,7 +41,7 @@ class ArticleScraper:
 
     def parse_rss_feed(self) -> list:
         """
-        Downloads and parses the RSS feed from the specified URL.
+        Download and parse the RSS feed from the specified URL.
         
         Returns:
             list: List of RSS feed entries
@@ -62,7 +62,7 @@ class ArticleScraper:
 
     def get_article_content(self, url) -> str:
         """
-        Downloads the content of an article from the given URL.
+        Download the content of an article from the given URL.
         
         Args:
             url (str): URL of the article to download
@@ -96,7 +96,7 @@ class ArticleScraper:
 
     def collect_articles(self) -> list:
         """
-        Recovers articles from the RSS feed and downloads their content.
+        Recover articles from the RSS feed and download their content.
         
         Returns:
             list: List of dictionaries containing article information
