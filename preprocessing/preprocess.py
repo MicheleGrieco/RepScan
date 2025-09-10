@@ -20,7 +20,9 @@ from bs4 import BeautifulSoup # for HTML tag removal
 from configuration.config import SPACY_MODEL
 
 class TextPreprocessor:
-    """A class for preprocessing text data, including removing HTML tags, URLs, special characters, and stopwords."""
+    """
+    A class for preprocessing text data, including removing HTML tags, URLs, special characters, and stopwords.
+    """
     
     def __init__(self, model_name=SPACY_MODEL) -> None:
         """
