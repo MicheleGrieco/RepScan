@@ -5,7 +5,7 @@ import altair as alt
 from datetime import datetime, timedelta
 import numpy as np
 from configuration.config import DASHBOARD_TITLE, TARGET_COMPANY
-from tools.score_calculator import get_historical_scores
+from tools.score_calculator import ReputationScoreCalculator
 from tools.sentiment_analysis import SentimentAnalyzer
 
 def run_dashboard() -> None:
@@ -22,7 +22,7 @@ def run_dashboard() -> None:
     st.markdown(f"Online reputation monitoring for **{TARGET_COMPANY}**")
 
     # Load historical scores
-    df = get_historical_scores()
+    df = ReputationScoreCalculator().get_historical_scores()
 
     if df.empty:
         st.warning("No data available, run data collection analysis first.")
