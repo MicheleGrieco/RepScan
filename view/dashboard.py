@@ -24,12 +24,12 @@ from typing import Optional
 
 class ReputationDashboard:
     """
-    Class for managing and displaying the reputation monitoring dashboard
+    Class for managing and displaying the reputation monitoring dashboard.
     """
     
     def __init__(self) -> None:
         """
-        Initialize the dashboard with the configuration and data loading
+        Initialize the dashboard with the configuration and data loading.
         
         Args:
             title (str): Title of the dashboard
@@ -44,7 +44,7 @@ class ReputationDashboard:
         
     def _setup_page(self) -> None:
         """
-        Configure the Streamlit page settings
+        Configure the Streamlit page settings.
         
         Args:
             title (str): Title of the dashboard
@@ -64,7 +64,7 @@ class ReputationDashboard:
 
     def _load_data(self) -> bool:
         """
-        Load and preprocess historical score data
+        Load and preprocess historical score data.
         
         Args:
             None
@@ -87,7 +87,7 @@ class ReputationDashboard:
         
     def _create_filters(self) -> str:
         """
-        Create and handle time period filters
+        Create and handle time period filters.
         
         Args:
             None
@@ -109,7 +109,7 @@ class ReputationDashboard:
         
     def _filter_data(self, period: str) -> Optional[pd.DataFrame]:
         """
-        Filter data based on selected time period
+        Filter data based on selected time period.
         
         Args:
             period (str): Selected time period
@@ -130,7 +130,7 @@ class ReputationDashboard:
         
     def run(self):
         """
-        Run the dashboard
+        Run the dashboard.
         
         Args:
             None
@@ -145,7 +145,34 @@ class ReputationDashboard:
         period = self._create_filters()
         filtered_df = self._filter_data(period)
         
-        # Add graph visualization using filtered_df
+        # Graph visualization using filtered_df
+        if filtered_df is not None and not filtered_df.empty:
+            st.subheader("Reputation Score Over Time")
+            line_chart = alt.Chart(filtered_df).mark_line(point=True).encode(
+                x='timestamp:T',
+                y='score:Q',
+                tooltip=['timestamp:T', 'score:Q', 'sentiment_label:N']
+            ).properties(
+                width=800,
+                height=400
+            ).interactive()
+            st.altair_chart(line_chart, use_container_width=True)
+            
+            st.subheader("Sentiment Distribution")
+            sentiment_counts = filtered_df['sentiment_label'].value_counts().reset_index()
+            sentiment_counts.columns = ['sentiment_label', 'count']
+            bar_chart = alt.Chart(sentiment_counts).mark_bar().encode(
+                x='sentiment_label:N',
+                y='count:Q',
+                color='sentiment_label:N',
+                tooltip=['sentiment_label:N', 'count:Q']
+            ).properties(
+                width=600,
+                height=400
+            )
+            st.altair_chart(bar_chart, use_container_width=True)
+        else:
+            st.info("No data available for the selected time period.")
         
         
 def run_dashboard() -> None:
