@@ -72,8 +72,9 @@ class RepScanAnalyzer:
         Returns:
             float: Reputational score calculated
         """
-        # Assicurati che la directory dei dati esista
-        # os.makedirs(DATA_DIRECTORY, exist_ok=True)
+        # Check and create data directory if it doesn't exist
+        if not os.path.exists(DATA_DIRECTORY):
+            os.makedirs(DATA_DIRECTORY)
 
         self.logger.info(f"=== Starting RepScan analisys for {TARGET_COMPANY} ===")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
