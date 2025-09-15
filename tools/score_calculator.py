@@ -17,6 +17,7 @@ import os # for file operations
 import logging 
 from datetime import datetime
 from configuration.config import DATA_DIRECTORY, RESULTS_FILE
+from typing import Optional
 
 class ReputationScoreCalculator:
     """
@@ -40,7 +41,7 @@ class ReputationScoreCalculator:
         
         self.results_file = RESULTS_FILE
 
-    def calculate_reputation_score(self, articles) -> float:
+    def calculate_reputation_score(self, articles: list) -> float:
         """
         Calculate the reputation score based on the sentiment analysis of articles.
         
@@ -78,7 +79,7 @@ class ReputationScoreCalculator:
         self.logger.info(f"Calculated reputation score: {weighted_score:.2f}")
         return weighted_score
 
-    def save_reputation_score(self, score, timestamp=None) -> None:
+    def save_reputation_score(self, score: float, timestamp: Optional[str] = None) -> None:
         """
         Save the reputation score to a CSV file
         

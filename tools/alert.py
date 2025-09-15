@@ -24,7 +24,7 @@ class AlertSystem:
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
 
-    def should_send_alert(self, score) -> bool:
+    def should_send_alert(self, score: float) -> bool:
         """
         Determine if an alert should be sent based on the reputational score.
         
@@ -36,7 +36,7 @@ class AlertSystem:
         """
         return score < ALERT_THRESHOLD
 
-    def create_alert_message(self, score, articles) -> str:
+    def create_alert_message(self, score: float, articles: list) -> str:
         """
         Create an HTML alert message for low reputational scores.
         
@@ -99,7 +99,7 @@ class AlertSystem:
 
         return html
 
-    def send_alert_email(self, score, articles) -> bool:
+    def send_alert_email(self, score: float, articles: list) -> bool:
         """
         Send an alert email when the reputation score is too low
         

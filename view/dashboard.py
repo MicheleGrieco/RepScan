@@ -20,6 +20,7 @@ import numpy as np # for numerical operations
 from configuration.config import DASHBOARD_TITLE, TARGET_COMPANY
 from tools.score_calculator import ReputationScoreCalculator
 from tools.sentiment_analysis import SentimentAnalyzer
+from typing import Optional
 
 class ReputationDashboard:
     """
@@ -106,7 +107,7 @@ class ReputationDashboard:
             
         return period
         
-    def _filter_data(self, period) -> pd.DataFrame | None:
+    def _filter_data(self, period: str) -> Optional[pd.DataFrame]:
         """
         Filter data based on selected time period
         

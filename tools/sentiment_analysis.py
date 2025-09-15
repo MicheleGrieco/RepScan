@@ -25,7 +25,7 @@ class SentimentAnalyzer:
     Class for sentiment analysis using transformer models
     """
     
-    def __init__(self, model_name=SENTIMENT_MODEL) -> None:
+    def __init__(self, model_name: str = SENTIMENT_MODEL) -> None:
         """
         Initialize the sentiment analyzer
         
@@ -59,7 +59,7 @@ class SentimentAnalyzer:
             self.logger.error(f"Error loading sentiment model: {str(e)}")
             return None
 
-    def _fallback_analysis(self, text) -> float:
+    def _fallback_analysis(self, text: str) -> float:
         """
         Keyword-based sentiment analysis (fallback)
         
@@ -80,7 +80,7 @@ class SentimentAnalyzer:
 
         return (positive_count - negative_count) / total
 
-    def analyze_sentiment(self, text) -> float:
+    def analyze_sentiment(self, text: str) -> float:
         """
         Analyze the sentiment of the text
         
@@ -114,7 +114,7 @@ class SentimentAnalyzer:
             return 0.0
 
     @staticmethod
-    def get_sentiment_label(score) -> str:
+    def get_sentiment_label(score: float) -> str:
         """
         Convert a sentiment score to a label
         

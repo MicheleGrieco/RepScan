@@ -23,7 +23,7 @@ class ArticleScraper:
     A class for scraping articles from RSS feeds and downloading their content.
     """
     
-    def __init__(self, feed_url=RSS_FEED_URL):
+    def __init__(self, feed_url: str = RSS_FEED_URL):
         """
         Initialize the ArticleScraper with RSS feed URL and logging configuration.
         
@@ -60,7 +60,7 @@ class ArticleScraper:
             self.logger.error(f"Error during the RSS feed parsing: {e}")
             return []
 
-    def get_article_content(self, url) -> str:
+    def get_article_content(self, url: str) -> str:
         """
         Download the content of an article from the given URL.
         

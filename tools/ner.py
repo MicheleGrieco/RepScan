@@ -33,7 +33,7 @@ class NamedEntityRecognizer:
     A class for performing Named Entity Recognition (NER) using SpaCy.
     """
     
-    def __init__(self, model_name=SPACY_MODEL) -> None:
+    def __init__(self, model_name: str = SPACY_MODEL) -> None:
         """
         Initialize the NER system with a specific SpaCy model.
         
@@ -50,7 +50,7 @@ class NamedEntityRecognizer:
         # Initialize SpaCy model
         self.nlp = self._initialize_spacy_model(model_name)
 
-    def _initialize_spacy_model(self, model_name) -> spacy.language.Language:
+    def _initialize_spacy_model(self, model_name: str) -> spacy.language.Language:
         """
         Initialize the SpaCy model with fallback options.
         
@@ -76,7 +76,7 @@ class NamedEntityRecognizer:
                 self.logger.error(f"Error during SpaCy model download or loading: {e}")
                 raise
 
-    def extract_entities(self, text) -> list:
+    def extract_entities(self, text: str) -> list:
         """
         Extract named entities from the given text using SpaCy NER.
         
@@ -95,7 +95,7 @@ class NamedEntityRecognizer:
         self.logger.info(f"{len(entities)} entities extracted from text")
         return entities
 
-    def is_company_mentioned(self, text, company=TARGET_COMPANY) -> bool:
+    def is_company_mentioned(self, text: str, company: str = TARGET_COMPANY) -> bool:
         """
         Verifies if a specific company is mentioned in the text.
         
@@ -126,7 +126,7 @@ class NamedEntityRecognizer:
         self.logger.info(f"Company {company} not found in text")
         return False
 
-    def get_company_mentions(self, text, company=TARGET_COMPANY) -> list:
+    def get_company_mentions(self, text: str, company: str = TARGET_COMPANY) -> list:
         """
         Retrieve mentions of a specific company in the text.
         
