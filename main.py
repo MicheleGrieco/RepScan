@@ -1,3 +1,21 @@
+"""
+RepScan - Main analysis execution module.
+Module name: main.py
+Author: Michele Grieco
+Description:
+    This module contains the main execution logic for the RepScan reputation monitoring application.
+    It orchestrates the workflow of collecting articles, preprocessing text, performing named entity recognition,
+    conducting sentiment analysis, calculating reputation scores, and sending alerts if necessary.
+    It also includes an option to launch a Streamlit dashboard for visualizing the results.
+Usage:
+    To run the analysis:
+        python main.py
+    To launch the Streamlit dashboard:
+        python main.py --dashboard
+    Ensure that all dependencies are installed and configured properly.
+    The module uses various tools and configurations defined in other parts of the application.
+"""
+
 import logging
 import os
 import argparse
@@ -14,12 +32,12 @@ from tools.alert import AlertSystem
 
 class RepScanAnalyzer:
     """
-    Main class for RepScan analysis execution
+    Main class for RepScan analysis execution.
     """
     
     def __init__(self):
         """
-        Initialize RepScanAnalyzer with its configs and dependencies
+        Initialize RepScanAnalyzer with its configs and dependencies.
         """
         # Logging config
         self._setup_logging()
@@ -31,6 +49,9 @@ class RepScanAnalyzer:
         self.alert_system = AlertSystem()
         
     def _setup_logging(self):
+        """
+        Setup logging configuration.
+        """
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -44,20 +65,20 @@ class RepScanAnalyzer:
 
     def run_analysis(self) -> float:
         """
-        Esegue l'intero flusso di analisi: raccolta articoli, preprocessing,
-        riconoscimento delle entità, analisi del sentiment, calcolo del punteggio
-        reputazionale e invio di alert se necessario.
+        Perform the entire analysis workflow: article collection, preprocessing,
+        entity recognition, sentiment analysis, reputation scoring,
+        and sending alerts if necessary.
         
         Returns:
-            float: Punteggio reputazionale calcolato
+            float: Reputational score calculated
         """
         # Assicurati che la directory dei dati esista
         # os.makedirs(DATA_DIRECTORY, exist_ok=True)
 
-        self.logger.info(f"=== Avvio analisi RepScan per {TARGET_COMPANY} ===")
+        self.logger.info(f"=== Starting RepScan analisys for {TARGET_COMPANY} ===")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Passo 1: Raccolta degli articoli
+        # Step 1: Collecting articles
         self.logger.info("Step 1: Articles collection from RSS feed")
         articles = self.scraper.collect_articles()
         if not articles:
@@ -75,9 +96,13 @@ class RepScanAnalyzer:
         
         return self._calculate_and_save_score(relevant_articles, timestamp)
 
-    def _process_articles(self, articles) -> list:
+    def _process_articles(self, articles: list) -> list:
         """
-        Process the articles applying preprocessing, NER and sentiment analysis
+        Process the articles applying preprocessing, NER and sentiment analysis.
+        Args:
+            articles (list): List of articles to process.
+        Returns:
+            list: List of articles that mention the target company with sentiment scores.
         """
         relevant_articles = []
         
@@ -106,9 +131,14 @@ class RepScanAnalyzer:
                 relevant_articles.append(article)
         return relevant_articles
             
-    def _calculate_and_save_score(self, relevant_articles, timestamp):
+    def _calculate_and_save_score(self, relevant_articles: list, timestamp: str) -> float:
         """
-        Calculate, save score and handle alerts
+        Calculate, save score and handle alerts.
+        Args:
+            relevant_articles (list): List of relevant articles with sentiment scores.
+            timestamp (str): Analysis timestamp.
+        Returns:
+            float: Reputational score calculated.
         """
         reputation_score = self.score_calculator.calculate_reputation_score(relevant_articles)
         self.score_calculator.save_reputation_score(reputation_score, timestamp)
@@ -122,9 +152,15 @@ class RepScanAnalyzer:
         self.logger.info(f"Analysis completed. Reputational score: {reputation_score:.2f}")
         return reputation_score
 
-    def _save_detailed_results(self, articles, score, timestamp) -> None:
+    def _save_detailed_results(self, articles: list, score: float, timestamp: str) -> None:
         """
-        Save analysis detailed results
+        Save analysis detailed results.
+        Args:
+            articles (list): List of analyzed articles.
+            score (float): Reputational score.
+            timestamp (str): Analysis timestamp.
+        Returns:
+            None
         """
         results = [{
             'timestamp': timestamp,
@@ -132,6 +168,7 @@ class RepScanAnalyzer:
             'link': article['link'],
             'sentiment_score': article['sentiment_score'],
             'sentiment_label': article['sentiment_label'],
+            'score': score,
             'published': article.get('published', 'N/A')
         } for article in articles]
         
@@ -144,7 +181,8 @@ class RepScanAnalyzer:
             
 def main():
     """
-    RepScan's main function
+    RepScan's entry point. Parses command line arguments to either run the analysis
+    or launch the Streamlit dashboard.
     """
     parser = argparse.ArgumentParser(description='RepScan - Reputational Score Monitoring')
     parser.add_argument('--dashboard', action='store_true', help='Run Streamlit dashboard')
