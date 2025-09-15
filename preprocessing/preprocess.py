@@ -24,7 +24,7 @@ class TextPreprocessor:
     A class for preprocessing text data, including removing HTML tags, URLs, special characters, and stopwords.
     """
     
-    def __init__(self, model_name=SPACY_MODEL) -> None:
+    def __init__(self, model_name: str = SPACY_MODEL) -> None:
         """
         Initialize the TextPreprocessor with a specific SpaCy model.
         
@@ -41,7 +41,7 @@ class TextPreprocessor:
         # Initialize SpaCy model
         self.nlp = self._initialize_spacy_model(model_name)
 
-    def _initialize_spacy_model(self, model_name) -> spacy.language.Language:
+    def _initialize_spacy_model(self, model_name: str) -> spacy.language.Language:
         """
         Initialize the SpaCy model with fallback options.
         
@@ -73,7 +73,7 @@ class TextPreprocessor:
                     self.logger.critical("Importing SpaCy model failed, please check your installation and model name.")
                     raise
 
-    def remove_html_tags(self, text) -> str:
+    def remove_html_tags(self, text: str) -> str:
         """
         Remove HTML tags from the text
         Args:
@@ -94,7 +94,7 @@ class TextPreprocessor:
         url_pattern = re.compile(r'https?://\S+|www\.\S+')
         return url_pattern.sub('', text)
 
-    def remove_special_chars(self, text) -> str:
+    def remove_special_chars(self, text: str) -> str:
         """
         Remove special characters from the text and normalize it
         Args:
@@ -107,7 +107,7 @@ class TextPreprocessor:
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
 
-    def remove_stopwords(self, text) -> str:
+    def remove_stopwords(self, text: str) -> str:
         """
         Remove stopwords from the text using SpaCy
         Args:
@@ -119,7 +119,7 @@ class TextPreprocessor:
         filtered_tokens = [token.text for token in doc if not token.is_stop]
         return ' '.join(filtered_tokens)
 
-    def preprocess(self, text, remove_stops=False) -> str:
+    def preprocess(self, text, remove_stops: bool = False) -> str:
         """
         Execute all preprocessing steps on the input text.
         
