@@ -13,7 +13,7 @@ Usage:
 """
 
 import pandas as pd # for data manipulation
-import os # for file operations
+import os
 import logging 
 from datetime import datetime
 from configuration.config import DATA_DIRECTORY, RESULTS_FILE
@@ -21,13 +21,13 @@ from typing import Optional
 
 class ReputationScoreCalculator:
     """
-    Class for calculating, saving and retrieving reputation scores
+    Class for calculating, saving and retrieving reputation scores.
     """
     
     def __init__(self) -> None:
         """
         Initialize the ReputationScoreCalculator with logging configuration
-        and ensure data directory exists
+        and ensure data directory exists.
         """
         # Logger configuration
         self.logger = logging.getLogger(__name__)
@@ -81,10 +81,10 @@ class ReputationScoreCalculator:
 
     def save_reputation_score(self, score: float, timestamp: Optional[str] = None) -> None:
         """
-        Save the reputation score to a CSV file
+        Save the reputation score to a CSV file.
         
         Args:
-            score (float): Reputation score
+            score (float): Reputation score.
             timestamp (str, optional): Analysis timestamp. If None, uses current timestamp.
         """
         if timestamp is None:
@@ -114,10 +114,10 @@ class ReputationScoreCalculator:
 
     def get_historical_scores(self) -> pd.DataFrame:
         """
-        Retrieve historical reputation scores from CSV file
+        Retrieve historical reputation scores from CSV file.
         
         Returns:
-            pandas.DataFrame: DataFrame containing historical reputation scores
+            pandas.DataFrame: DataFrame containing historical reputation scores.
         """
         if not os.path.exists(self.results_file):
             self.logger.warning(f"File {self.results_file} not found. Returning empty DataFrame.")
